@@ -100,9 +100,6 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             if (isMouseOverArea(area, mouseX, mouseY)) {
                 OrganApiNetwork.channel().sendToServer(new OpenOrganMenuC2SPacket(area.bodyPartId()));
-                if (minecraft != null && minecraft.player != null) {
-                    minecraft.player.closeContainer();
-                }
                 return true;
             }
         }
