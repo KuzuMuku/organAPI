@@ -1,0 +1,20 @@
+{
+  "item": "organapi:chest_expansion_kit",
+  "pattern": [
+    " I ",
+    "IBI",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "item": "organapi:chest_expansion_kit",
+    "count": 2
+  }
+}

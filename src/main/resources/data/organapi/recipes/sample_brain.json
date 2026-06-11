@@ -1,0 +1,19 @@
+{
+  "item": "organapi:sample_brain",
+  "pattern": [
+    "RRR",
+    "RAR",
+    "RRR"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "A": {
+      "item": "minecraft:apple"
+    }
+  },
+  "result": {
+    "item": "organapi:sample_brain"
+  }
+}

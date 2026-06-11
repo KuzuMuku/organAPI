@@ -1,0 +1,19 @@
+{
+  "item": "organapi:right_leg_expansion_kit",
+  "pattern": [
+    " N ",
+    "NBN",
+    " N "
+  ],
+  "key": {
+    "N": {
+      "item": "minecraft:gold_nugget"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "item": "organapi:right_leg_expansion_kit"
+  }
+}

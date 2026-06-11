@@ -1,0 +1,19 @@
+{
+  "item": "organapi:leg_expansion_kit",
+  "pattern": [
+    " G ",
+    "GBG",
+    " G "
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "item": "organapi:leg_expansion_kit"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "organapi:block/surgery_room" },
+    "facing=south": { "model": "organapi:block/surgery_room", "y": 180 },
+    "facing=west": { "model": "organapi:block/surgery_room", "y": 270 },
+    "facing=east": { "model": "organapi:block/surgery_room", "y": 90 }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "translation_key": "body_part.organapi.abdomen",
+  "default_capacity": 3,
+  "sort_order": 2,
+  "visual_width_ratio": 1.0,
+  "visual_height_ratio": 0.9,
+  "accepted_tags": ["organapi:organs"]
+}

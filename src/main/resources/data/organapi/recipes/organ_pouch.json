@@ -1,0 +1,19 @@
+{
+  "item": "organapi:organ_pouch",
+  "pattern": [
+    "LLL",
+    "B B",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "item": "organapi:organ_pouch"
+  }
+}

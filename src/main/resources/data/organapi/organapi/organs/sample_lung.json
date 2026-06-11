@@ -1,0 +1,7 @@
+{
+  "item": "organapi:sample_lung",
+  "valid_parts": ["organapi:chest"],
+  "size": 1,
+  "tooltips": ["Sample lung organ for chest slot validation."],
+  "tags": ["respiratory", "sample"]
+}

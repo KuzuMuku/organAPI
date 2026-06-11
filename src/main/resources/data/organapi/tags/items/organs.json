@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "organapi:sample_brain",
+    "organapi:sample_heart",
+    "organapi:sample_lung",
+    "organapi:sample_tendon",
+    "organapi:sample_leg_muscle"
+  ]
+}

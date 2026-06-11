@@ -1,0 +1,7 @@
+{
+  "item": "organapi:sample_heart",
+  "valid_parts": ["organapi:chest"],
+  "size": 1,
+  "tooltips": ["Sample heart organ for chest capacity tests."],
+  "tags": ["circulatory", "sample"]
+}

@@ -1,0 +1,8 @@
+{
+  "translation_key": "body_part.organapi.left_arm",
+  "default_capacity": 2,
+  "sort_order": 3,
+  "visual_width_ratio": 0.5,
+  "visual_height_ratio": 1.0,
+  "accepted_tags": ["organapi:organs"]
+}
