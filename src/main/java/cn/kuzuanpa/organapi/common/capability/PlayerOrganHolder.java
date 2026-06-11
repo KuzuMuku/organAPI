@@ -20,6 +20,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<CompoundTag> {
     private final Map<ResourceLocation, BodyPartState> bodyParts = new HashMap<>();
     private boolean dirty;
+    public static final int MAX_CAPACITY=36;
 
     @Override
     public int getCapacity(ResourceLocation bodyPartId) {
@@ -122,11 +123,13 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public void addBonusCapacity(ResourceLocation bodyPartId, int amount) {
+    public boolean addBonusCapacity(ResourceLocation bodyPartId, int amount) {
         BodyPartState state = getState(bodyPartId);
+        if(state.bonusCapacity + amount > MAX_CAPACITY) return false;
         state.bonusCapacity += amount;
         ensureSlotCount(bodyPartId);
         markDirty();
+        return true;
     }
 
     @Override

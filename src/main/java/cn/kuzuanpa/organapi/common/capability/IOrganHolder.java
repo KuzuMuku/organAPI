@@ -27,7 +27,7 @@ public interface IOrganHolder {
 
     int getBonusCapacity(ResourceLocation bodyPartId);
 
-    void addBonusCapacity(ResourceLocation bodyPartId, int amount);
+    boolean addBonusCapacity(ResourceLocation bodyPartId, int amount);
 
     void copyFrom(IOrganHolder other);
 

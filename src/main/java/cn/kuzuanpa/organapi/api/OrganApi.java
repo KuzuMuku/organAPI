@@ -43,9 +43,6 @@ public final class OrganApi {
     }
 
     public static boolean addCapacity(Player player, ResourceLocation bodyPartId, int amount) {
-        return IOrganHolder.get(player).map(holder -> {
-            holder.addBonusCapacity(bodyPartId, amount);
-            return true;
-        }).orElse(false);
+        return IOrganHolder.get(player).map(holder -> holder.addBonusCapacity(bodyPartId, amount)).orElse(false);
     }
 }
