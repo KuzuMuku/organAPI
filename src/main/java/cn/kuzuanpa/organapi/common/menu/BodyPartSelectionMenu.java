@@ -2,11 +2,13 @@ package cn.kuzuanpa.organapi.common.menu;
 
 import cn.kuzuanpa.organapi.api.query.BodyPartOverview;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
-import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
+import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.registry.OrganMenus;
+import cn.kuzuanpa.organapi.common.util.OrganDataKeys;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -16,15 +18,21 @@ import net.minecraft.world.item.ItemStack;
 
 public class BodyPartSelectionMenu extends AbstractContainerMenu implements SelectableBodyPartMenu {
     private final Player player;
+    private final Entity target;
     private final List<ResourceLocation> bodyParts;
     private int selectedBodyPartIndex;
 
     public BodyPartSelectionMenu(int containerId, Inventory inventory) {
+        this(containerId, inventory, inventory.player.getId());
+    }
+
+    public BodyPartSelectionMenu(int containerId, Inventory inventory, int targetEntityId) {
         super(OrganMenus.BODY_PART_SELECTION_MENU.get(), containerId);
         this.player = inventory.player;
-        this.bodyParts = new ArrayList<>(OrganRegistryAccess.getOrderedBodyPartIds());
+        this.target = resolveTargetEntity(inventory, targetEntityId);
+        this.bodyParts = new ArrayList<>(BodyPlanResolver.getOrderedBodyPartIds(target));
         if (this.bodyParts.isEmpty()) {
-            this.bodyParts.add(ResourceLocation.fromNamespaceAndPath("organapi", "head"));
+            this.bodyParts.add(BodyPlanResolver.getDefaultBodyPartId(target, OrganDataKeys.DEFAULT_BODY_PART));
         }
         addPlayerInventory(inventory);
         addDataSlot(new DataSlot() {
@@ -40,6 +48,11 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
         });
     }
 
+    private static Entity resolveTargetEntity(Inventory inventory, int targetEntityId) {
+        Entity entity = inventory.player.level().getEntity(targetEntityId);
+        return entity != null ? entity : inventory.player;
+    }
+
     private void addPlayerInventory(Inventory inventory) {
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -53,6 +66,14 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
 
     public Player getPlayer() {
         return player;
+    }
+
+    public Entity getTarget() {
+        return target;
+    }
+
+    public int getTargetEntityId() {
+        return target.getId();
     }
 
     @Override
@@ -76,11 +97,11 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
     }
 
     public BodyPartOverview getOverview(ResourceLocation bodyPartId) {
-        return OrganQueryService.getOverview(player, bodyPartId);
+        return OrganQueryService.getOverview(target, bodyPartId);
     }
 
     public ItemStack getPreviewStack(ResourceLocation bodyPartId) {
-        return OrganQueryService.getInstalledOrgans(player, bodyPartId).stream()
+        return OrganQueryService.getInstalledOrgans(target, bodyPartId).stream()
                 .filter(stack -> !stack.isEmpty())
                 .findFirst()
                 .map(ItemStack::copy)
@@ -88,16 +109,16 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
     }
 
     public int getUsedCapacity(ResourceLocation bodyPartId) {
-        return OrganQueryService.getUsedCapacity(player, bodyPartId);
+        return OrganQueryService.getUsedCapacity(target, bodyPartId);
     }
 
     public int getTotalCapacity(ResourceLocation bodyPartId) {
-        return OrganQueryService.getTotalCapacity(player, bodyPartId);
+        return OrganQueryService.getTotalCapacity(target, bodyPartId);
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return player == this.player && player.isAlive();
+        return player == this.player && player.isAlive() && target.isAlive();
     }
 
     @Override

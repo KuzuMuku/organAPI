@@ -36,7 +36,7 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
     }
 
     private void positionSlots() {
-        OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
+        OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getTarget(), menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         for (int index = 0; index < OrganMenu.MAX_ORGAN_SLOTS; index++) {
             Slot slot = menu.slots.get(index);
             if (index < menu.getVisibleOrganSlotCount()) {
@@ -60,7 +60,7 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
+        OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getTarget(), menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         int totalWidth = grid.columns() * OrganScreenLayout.SLOT_SIZE + 6;
         int totalHeight = grid.rows() * OrganScreenLayout.SLOT_SIZE + 6;
         int panelX = leftPos + (imageWidth - totalWidth) / 2 - 1;

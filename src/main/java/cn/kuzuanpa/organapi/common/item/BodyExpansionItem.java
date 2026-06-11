@@ -35,7 +35,7 @@ public class BodyExpansionItem extends Item {
                     stack.shrink(1);
                 }
                 if (player instanceof ServerPlayer serverPlayer) {
-                    OrganApiNetwork.sync(serverPlayer);
+                    OrganApiNetwork.sync(serverPlayer, serverPlayer);
                     if (serverPlayer.containerMenu instanceof OrganMenu organMenu) {
                         organMenu.broadcastChanges();
                     }

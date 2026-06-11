@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "organapi:block/slaughter_room" },
+    "facing=south": { "model": "organapi:block/slaughter_room", "y": 180 },
+    "facing=west": { "model": "organapi:block/slaughter_room", "y": 270 },
+    "facing=east": { "model": "organapi:block/slaughter_room", "y": 90 }
+  }
+}

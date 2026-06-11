@@ -3,8 +3,11 @@ package cn.kuzuanpa.organapi.common.registry;
 import cn.kuzuanpa.organapi.OrganApiMod;
 import cn.kuzuanpa.organapi.api.body.BodyPartIds;
 import cn.kuzuanpa.organapi.common.item.BodyExpansionItem;
+import cn.kuzuanpa.organapi.common.item.DebugHeartInjectorItem;
 import cn.kuzuanpa.organapi.common.item.OrganItem;
 import cn.kuzuanpa.organapi.common.item.OrganPouchItem;
+import cn.kuzuanpa.organapi.common.item.ScalpelItem;
+import cn.kuzuanpa.organapi.common.item.SlaughterToolItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,6 +19,9 @@ public final class OrganItems {
 
     public static final RegistryObject<Item> CHEST_OPENER = ITEMS.register("chest_opener", () -> new OrganPouchItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> ORGAN_POUCH = ITEMS.register("organ_pouch", () -> new OrganPouchItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SCALPEL = ITEMS.register("scalpel", () -> new ScalpelItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SLAUGHTER_TOOL = ITEMS.register("slaughter_tool", () -> new SlaughterToolItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> DEBUG_HEART_INJECTOR = ITEMS.register("debug_heart_injector", () -> new DebugHeartInjectorItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> SAMPLE_BRAIN = ITEMS.register("sample_brain",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_brain")));
     public static final RegistryObject<Item> SAMPLE_HEART = ITEMS.register("sample_heart",

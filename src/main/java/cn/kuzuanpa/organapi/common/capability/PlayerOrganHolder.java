@@ -3,6 +3,7 @@ package cn.kuzuanpa.organapi.common.capability;
 import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
 import cn.kuzuanpa.organapi.api.organ.OrganDefinition;
+import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,16 +15,27 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.INBTSerializable;
 
 public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<CompoundTag> {
+    private final Entity owner;
     private final Map<ResourceLocation, BodyPartState> bodyParts = new HashMap<>();
+    private Runnable dirtyListener;
     private boolean dirty;
+
+    public PlayerOrganHolder(Entity owner) {
+        this.owner = owner;
+    }
+
+    public void setDirtyListener(Runnable dirtyListener) {
+        this.dirtyListener = dirtyListener;
+    }
 
     @Override
     public int getCapacity(ResourceLocation bodyPartId) {
-        Optional<BodyPartDefinition> definition = OrganRegistryAccess.getBodyPart(bodyPartId);
+        Optional<BodyPartDefinition> definition = BodyPlanResolver.getBodyPart(owner, bodyPartId);
         int capacity = Math.max(0, definition.map(BodyPartDefinition::defaultCapacity).orElse(0) + getState(bodyPartId).bonusCapacity);
         Integer maxCapacity = definition.map(BodyPartDefinition::maxCapacity).orElse(null);
         return maxCapacity == null ? capacity : Math.min(capacity, maxCapacity);
@@ -54,28 +66,11 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
 
     @Override
     public OrganInstallResult install(ResourceLocation bodyPartId, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return OrganInstallResult.fail(Component.translatable("message.organapi.empty_organ"));
-        }
-        Optional<OrganDefinition> organ = OrganRegistryAccess.getOrgan(stack);
-        if (organ.isEmpty()) {
-            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_organ"));
-        }
-        if (!organ.get().supports(bodyPartId)) {
-            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_body_part"));
-        }
-        if (getFreeCapacity(bodyPartId) < organ.get().size()) {
-            return OrganInstallResult.fail(Component.translatable("message.organapi.not_enough_capacity"));
-        }
-        BodyPartState state = getState(bodyPartId);
         ensureSlotCount(bodyPartId);
+        BodyPartState state = getState(bodyPartId);
         for (int i = 0; i < state.organs.size(); i++) {
             if (state.organs.get(i).isEmpty()) {
-                ItemStack inserted = stack.copyWithCount(1);
-                state.organs.set(i, inserted);
-                stack.shrink(1);
-                markDirty();
-                return OrganInstallResult.success(Component.translatable("message.organapi.installed"));
+                return trySetOrgan(bodyPartId, i, stack, true);
             }
         }
         return OrganInstallResult.fail(Component.translatable("message.organapi.no_empty_slot"));
@@ -108,14 +103,12 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
 
     @Override
     public void setOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack) {
-        ensureSlotCount(bodyPartId);
-        BodyPartState state = getState(bodyPartId);
-        if (slotIndex < 0 || slotIndex >= state.organs.size()) {
-            return;
-        }
-        ItemStack stored = stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
-        state.organs.set(slotIndex, stored);
-        markDirty();
+        trySetOrgan(bodyPartId, slotIndex, stack, false);
+    }
+
+    @Override
+    public OrganInstallResult trySetOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack) {
+        return trySetOrgan(bodyPartId, slotIndex, stack, false);
     }
 
     @Override
@@ -125,6 +118,9 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
 
     @Override
     public boolean addBonusCapacity(ResourceLocation bodyPartId, int amount) {
+        if (BodyPlanResolver.getBodyPart(owner, bodyPartId).isEmpty()) {
+            return false;
+        }
         BodyPartState state = getState(bodyPartId);
         state.bonusCapacity += amount;
         ensureSlotCount(bodyPartId);
@@ -135,8 +131,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     @Override
     public void copyFrom(IOrganHolder other) {
         bodyParts.clear();
-        for (BodyPartDefinition definition : OrganRegistryAccess.getBodyParts()) {
-            ResourceLocation id = definition.id();
+        for (ResourceLocation id : BodyPlanResolver.getOrderedBodyPartIds(owner)) {
             BodyPartState state = getState(id);
             state.bonusCapacity = other.getBonusCapacity(id);
             List<ItemStack> copied = other.getInstalledOrgans(id);
@@ -152,6 +147,9 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     @Override
     public void markDirty() {
         dirty = true;
+        if (dirtyListener != null) {
+            dirtyListener.run();
+        }
     }
 
     @Override
@@ -201,6 +199,44 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
             ensureSlotCount(id);
         }
         dirty = false;
+    }
+
+    private OrganInstallResult trySetOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack, boolean consumeStack) {
+        Optional<BodyPartDefinition> bodyPart = BodyPlanResolver.getBodyPart(owner, bodyPartId);
+        if (bodyPart.isEmpty()) {
+            return OrganInstallResult.fail(Component.translatable("message.organapi.unknown_body_part"));
+        }
+        ensureSlotCount(bodyPartId);
+        BodyPartState state = getState(bodyPartId);
+        if (slotIndex < 0 || slotIndex >= state.organs.size()) {
+            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_slot"));
+        }
+        if (stack.isEmpty()) {
+            ItemStack removed = state.organs.get(slotIndex);
+            state.organs.set(slotIndex, ItemStack.EMPTY);
+            if (!removed.isEmpty()) {
+                markDirty();
+            }
+            return OrganInstallResult.success(Component.translatable("message.organapi.removed"));
+        }
+        Optional<OrganDefinition> organ = OrganRegistryAccess.getOrgan(stack);
+        if (organ.isEmpty()) {
+            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_organ"));
+        }
+        if (!bodyPart.get().accepts(stack) || !organ.get().supports(bodyPartId)) {
+            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_body_part"));
+        }
+        ItemStack previous = state.organs.get(slotIndex);
+        int usedWithoutPrevious = getUsedCapacity(bodyPartId) - getSize(previous);
+        if (usedWithoutPrevious + organ.get().size() > getCapacity(bodyPartId)) {
+            return OrganInstallResult.fail(Component.translatable("message.organapi.not_enough_capacity"));
+        }
+        state.organs.set(slotIndex, stack.copyWithCount(1));
+        if (consumeStack) {
+            stack.shrink(1);
+        }
+        markDirty();
+        return OrganInstallResult.success(Component.translatable(previous.isEmpty() ? "message.organapi.installed" : "message.organapi.replaced"));
     }
 
     private BodyPartState getState(ResourceLocation bodyPartId) {

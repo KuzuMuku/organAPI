@@ -1,10 +1,11 @@
 package cn.kuzuanpa.organapi.client.screen;
 
 import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
-import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
+import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 public final class OrganOverviewLayout {
     public static final int GUI_WIDTH = 320;
@@ -28,14 +29,14 @@ public final class OrganOverviewLayout {
     private OrganOverviewLayout() {
     }
 
-    public static GridDimensions previewGrid(ResourceLocation bodyPartId, int capacity) {
-        BodyPartDefinition definition = OrganRegistryAccess.getBodyPart(bodyPartId)
+    public static GridDimensions previewGrid(Entity entity, ResourceLocation bodyPartId, int capacity) {
+        BodyPartDefinition definition = BodyPlanResolver.getBodyPart(entity, bodyPartId)
                 .orElse(BodyPartDefinition.simple(bodyPartId, Math.max(1, capacity), 0));
         return gridFor(capacity, definition.visualWidthRatio(), definition.visualHeightRatio(), 1, capacity);
     }
 
-    public static GridDimensions editorGrid(ResourceLocation bodyPartId, int capacity) {
-        BodyPartDefinition definition = OrganRegistryAccess.getBodyPart(bodyPartId)
+    public static GridDimensions editorGrid(Entity entity, ResourceLocation bodyPartId, int capacity) {
+        BodyPartDefinition definition = BodyPlanResolver.getBodyPart(entity, bodyPartId)
                 .orElse(BodyPartDefinition.simple(bodyPartId, Math.max(1, capacity), 0));
         return gridFor(capacity, definition.visualWidthRatio(), definition.visualHeightRatio(), 1, 8);
     }
@@ -74,8 +75,8 @@ public final class OrganOverviewLayout {
         return layout.startY() + (index / layout.grid().columns()) * layout.cellSize();
     }
 
-    public static PreviewLayout previewLayout(BodyPartArea area, ResourceLocation bodyPartId, int capacity) {
-        GridDimensions grid = previewGrid(bodyPartId, capacity);
+    public static PreviewLayout previewLayout(BodyPartArea area, ResourceLocation bodyPartId, int capacity, Entity entity) {
+        GridDimensions grid = previewGrid(entity, bodyPartId, capacity);
         int horizontalPadding = Math.min(2, Math.max(0, area.width() / 6));
         int verticalPadding = Math.min(2, Math.max(0, area.height() / 6));
         int availableWidth = Math.max(1, area.width() - horizontalPadding * 2);
@@ -90,18 +91,18 @@ public final class OrganOverviewLayout {
         return new PreviewLayout(grid, cellSize, iconSize, startX, startY);
     }
 
-    public static List<BodyPartArea> bodyPartAreas(List<ResourceLocation> bodyPartIds, ResourceLocation selectedBodyPartId) {
+    public static List<BodyPartArea> bodyPartAreas(List<ResourceLocation> bodyPartIds, ResourceLocation selectedBodyPartId, Entity entity) {
         List<BodyPartArea> areas = new ArrayList<>(bodyPartIds.size());
         for (int index = 0; index < bodyPartIds.size(); index++) {
             ResourceLocation bodyPartId = bodyPartIds.get(index);
             boolean selected = bodyPartId.equals(selectedBodyPartId);
-            areas.add(createBodyPartArea(bodyPartId, index, selected));
+            areas.add(createBodyPartArea(entity, bodyPartId, index, selected));
         }
         return areas;
     }
 
-    private static BodyPartArea createBodyPartArea(ResourceLocation bodyPartId, int index, boolean selected) {
-        return OrganRegistryAccess.getBodyPart(bodyPartId)
+    private static BodyPartArea createBodyPartArea(Entity entity, ResourceLocation bodyPartId, int index, boolean selected) {
+        return BodyPlanResolver.getBodyPart(entity, bodyPartId)
                 .map(BodyPartDefinition::overviewArea)
                 .map(area -> new BodyPartArea(bodyPartId, index, area.x(), area.y(), area.width(), area.height(), selected))
                 .orElseGet(() -> new BodyPartArea(bodyPartId, index, 4, 12 + index * 24, 48, 20, selected));

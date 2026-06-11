@@ -21,9 +21,8 @@ public record SelectBodyPartC2SPacket(int bodyPartIndex) {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            IOrganHolder.resolve(player).ifPresent(IOrganHolder::markDirty);
-
             if (player != null && player.containerMenu instanceof OrganOverviewMenu organOverviewMenu) {
+                IOrganHolder.resolve(organOverviewMenu.getTarget()).ifPresent(IOrganHolder::markDirty);
                 organOverviewMenu.setSelectedBodyPartIndex(packet.bodyPartIndex());
             }
         });

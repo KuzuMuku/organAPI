@@ -2,8 +2,8 @@ package cn.kuzuanpa.organapi.common.menu;
 
 import cn.kuzuanpa.organapi.api.query.BodyPartOverview;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
+import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
-import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
 import cn.kuzuanpa.organapi.common.inventory.OrganPartContainer;
 import cn.kuzuanpa.organapi.common.menu.slot.OrganSlot;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -24,28 +25,39 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
     public static final int MAX_ORGAN_SLOTS = OrganDataKeys.MAX_VISIBLE_SLOTS;
 
     private final Player player;
+    private final Entity target;
     private final OrganPartContainer organContainer;
     private final List<ResourceLocation> bodyParts;
     private int selectedBodyPartIndex;
     private int visibleOrganSlotCount;
 
     public OrganOverviewMenu(int containerId, Inventory inventory) {
-        this(containerId, inventory, OrganDataKeys.DEFAULT_BODY_PART);
+        this(containerId, inventory, inventory.player.getId(), OrganDataKeys.DEFAULT_BODY_PART);
     }
 
     public OrganOverviewMenu(int containerId, Inventory inventory, ResourceLocation initialBodyPart) {
+        this(containerId, inventory, inventory.player.getId(), initialBodyPart);
+    }
+
+    public OrganOverviewMenu(int containerId, Inventory inventory, int targetEntityId, ResourceLocation initialBodyPart) {
         super(OrganMenus.ORGAN_OVERVIEW_MENU.get(), containerId);
         this.player = inventory.player;
-        this.bodyParts = new ArrayList<>(OrganRegistryAccess.getOrderedBodyPartIds());
+        this.target = resolveTargetEntity(inventory, targetEntityId);
+        this.bodyParts = new ArrayList<>(BodyPlanResolver.getOrderedBodyPartIds(target));
         if (this.bodyParts.isEmpty()) {
-            this.bodyParts.add(OrganDataKeys.DEFAULT_BODY_PART);
+            this.bodyParts.add(BodyPlanResolver.getDefaultBodyPartId(target, OrganDataKeys.DEFAULT_BODY_PART));
         }
         this.selectedBodyPartIndex = resolveBodyPartIndex(initialBodyPart);
-        this.organContainer = new OrganPartContainer(player, getSelectedBodyPartId());
+        this.organContainer = new OrganPartContainer(player, target, getSelectedBodyPartId());
         refreshMenuState();
         addOrganSlots();
         addPlayerInventory(inventory);
         addDataSlots();
+    }
+
+    private static Entity resolveTargetEntity(Inventory inventory, int targetEntityId) {
+        Entity entity = inventory.player.level().getEntity(targetEntityId);
+        return entity != null ? entity : inventory.player;
     }
 
     private int resolveBodyPartIndex(ResourceLocation bodyPartId) {
@@ -105,6 +117,14 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
         return player;
     }
 
+    public Entity getTarget() {
+        return target;
+    }
+
+    public int getTargetEntityId() {
+        return target.getId();
+    }
+
     @Override
     public List<ResourceLocation> getBodyPartIds() {
         return List.copyOf(bodyParts);
@@ -138,11 +158,11 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
     }
 
     public int getUsedCapacity(ResourceLocation bodyPartId) {
-        return OrganQueryService.getUsedCapacity(player, bodyPartId);
+        return OrganQueryService.getUsedCapacity(target, bodyPartId);
     }
 
     public BodyPartOverview getOverview(ResourceLocation bodyPartId) {
-        return OrganQueryService.getOverview(player, bodyPartId);
+        return OrganQueryService.getOverview(target, bodyPartId);
     }
 
     @Override
@@ -162,9 +182,9 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        IOrganHolder.resolve(player).ifPresent(holder -> {
+        IOrganHolder.resolve(target).ifPresent(holder -> {
             if (holder.isDirty()) {
-                OrganApiNetwork.sync(serverPlayer);
+                OrganApiNetwork.sync(serverPlayer, target);
                 holder.clearDirty();
             }
         });
@@ -191,11 +211,11 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
         } else {
             boolean moved = false;
             for (int organIndex = 0; organIndex < getVisibleOrganSlotCount(); organIndex++) {
-                Slot target = slots.get(organIndex);
-                if (!target.hasItem() && target.mayPlace(stack)) {
+                Slot targetSlot = slots.get(organIndex);
+                if (!targetSlot.hasItem() && targetSlot.mayPlace(stack)) {
                     ItemStack single = stack.copyWithCount(1);
-                    target.set(single);
-                    target.setChanged();
+                    targetSlot.set(single);
+                    targetSlot.setChanged();
                     stack.shrink(1);
                     moved = true;
                     break;

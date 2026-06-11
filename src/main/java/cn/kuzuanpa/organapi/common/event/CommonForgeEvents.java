@@ -2,9 +2,9 @@ package cn.kuzuanpa.organapi.common.event;
 
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
 import cn.kuzuanpa.organapi.common.capability.OrganHolderProvider;
+import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -12,9 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class CommonForgeEvents {
     @SubscribeEvent
     public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof Player) {
-            event.addCapability(OrganHolderProvider.ID, new OrganHolderProvider());
-        }
+        event.addCapability(OrganHolderProvider.ID, new OrganHolderProvider(event.getObject()));
     }
 
     @SubscribeEvent
@@ -28,21 +26,21 @@ public class CommonForgeEvents {
     @SubscribeEvent
     public void onPlayerLogin(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            cn.kuzuanpa.organapi.common.network.OrganApiNetwork.sync(serverPlayer);
+            OrganApiNetwork.sync(serverPlayer, serverPlayer);
         }
     }
 
     @SubscribeEvent
     public void onPlayerChangedDimension(net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            cn.kuzuanpa.organapi.common.network.OrganApiNetwork.sync(serverPlayer);
+            OrganApiNetwork.sync(serverPlayer, serverPlayer);
         }
     }
 
     @SubscribeEvent
     public void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            cn.kuzuanpa.organapi.common.network.OrganApiNetwork.sync(serverPlayer);
+            OrganApiNetwork.sync(serverPlayer, serverPlayer);
         }
     }
 }

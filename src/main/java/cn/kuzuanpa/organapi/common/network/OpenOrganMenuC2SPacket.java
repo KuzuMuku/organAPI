@@ -6,18 +6,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.function.Supplier;
 
-public record OpenOrganMenuC2SPacket(ResourceLocation bodyPartId) {
+public record OpenOrganMenuC2SPacket(int targetEntityId, ResourceLocation bodyPartId) {
     public static void encode(OpenOrganMenuC2SPacket packet, FriendlyByteBuf buf) {
+        buf.writeInt(packet.targetEntityId);
         buf.writeResourceLocation(packet.bodyPartId);
     }
 
     public static OpenOrganMenuC2SPacket decode(FriendlyByteBuf buf) {
-        return new OpenOrganMenuC2SPacket(buf.readResourceLocation());
+        return new OpenOrganMenuC2SPacket(buf.readInt(), buf.readResourceLocation());
     }
 
     public static void handle(OpenOrganMenuC2SPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -25,10 +27,17 @@ public record OpenOrganMenuC2SPacket(ResourceLocation bodyPartId) {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player != null) {
+                Entity target = player.level().getEntity(packet.targetEntityId());
+                if (target == null) {
+                    return;
+                }
                 NetworkHooks.openScreen(player, new SimpleMenuProvider(
-                        (windowId, inventory, entityPlayer) -> new OrganMenu(windowId, inventory, packet.bodyPartId()),
+                        (windowId, inventory, entityPlayer) -> new OrganMenu(windowId, inventory, packet.targetEntityId(), packet.bodyPartId()),
                         Component.translatable("menu.organapi.organ_menu")
-                ), buf -> buf.writeResourceLocation(packet.bodyPartId()));
+                ), buf -> {
+                    buf.writeInt(packet.targetEntityId());
+                    buf.writeResourceLocation(packet.bodyPartId());
+                });
             }
         });
         context.setPacketHandled(true);

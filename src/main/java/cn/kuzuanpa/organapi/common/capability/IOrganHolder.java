@@ -4,7 +4,7 @@ import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -25,6 +25,8 @@ public interface IOrganHolder {
 
     void setOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack);
 
+    OrganInstallResult trySetOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack);
+
     int getBonusCapacity(ResourceLocation bodyPartId);
 
     boolean addBonusCapacity(ResourceLocation bodyPartId, int amount);
@@ -37,11 +39,11 @@ public interface IOrganHolder {
 
     void clearDirty();
 
-    static LazyOptional<IOrganHolder> get(Player player) {
-        return player.getCapability(OrganCapabilities.ORGAN_HOLDER);
+    static LazyOptional<IOrganHolder> get(Entity entity) {
+        return entity.getCapability(OrganCapabilities.ORGAN_HOLDER);
     }
 
-    static Optional<IOrganHolder> resolve(Player player) {
-        return get(player).resolve();
+    static Optional<IOrganHolder> resolve(Entity entity) {
+        return get(entity).resolve();
     }
 }

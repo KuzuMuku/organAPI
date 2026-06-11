@@ -4,15 +4,18 @@ import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class OrganPartContainer implements Container {
-    private final Player player;
+    private final Player viewer;
+    private final Entity target;
     private ResourceLocation bodyPartId;
 
-    public OrganPartContainer(Player player, ResourceLocation bodyPartId) {
-        this.player = player;
+    public OrganPartContainer(Player viewer, Entity target, ResourceLocation bodyPartId) {
+        this.viewer = viewer;
+        this.target = target;
         this.bodyPartId = bodyPartId;
     }
 
@@ -71,7 +74,7 @@ public class OrganPartContainer implements Container {
 
     @Override
     public boolean stillValid(Player player) {
-        return player == this.player && player.isAlive();
+        return player == viewer && player.isAlive() && target.isAlive();
     }
 
     @Override
@@ -82,6 +85,6 @@ public class OrganPartContainer implements Container {
     }
 
     private Optional<IOrganHolder> getHolder() {
-        return IOrganHolder.resolve(player);
+        return IOrganHolder.resolve(target);
     }
 }

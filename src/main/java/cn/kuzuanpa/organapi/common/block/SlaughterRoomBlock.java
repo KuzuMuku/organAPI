@@ -1,16 +1,12 @@
 package cn.kuzuanpa.organapi.common.block;
 
-import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
-import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
-import cn.kuzuanpa.organapi.common.util.OrganDataKeys;
+import cn.kuzuanpa.organapi.common.util.SlaughterAccessHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -25,12 +21,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
-public class SurgeryRoomBlock extends HorizontalDirectionalBlock {
+public class SlaughterRoomBlock extends HorizontalDirectionalBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
-    public SurgeryRoomBlock(BlockBehaviour.Properties properties) {
+    public SlaughterRoomBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(FACING, net.minecraft.core.Direction.NORTH));
     }
@@ -63,15 +58,18 @@ public class SurgeryRoomBlock extends HorizontalDirectionalBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-            ResourceLocation defaultBodyPart = BodyPlanResolver.getDefaultBodyPartId(serverPlayer, OrganDataKeys.DEFAULT_BODY_PART);
-            MenuProvider provider = new SimpleMenuProvider(
-                    (windowId, inventory, entityPlayer) -> new OrganOverviewMenu(windowId, inventory, serverPlayer.getId(), defaultBodyPart),
-                    Component.translatable("menu.organapi.organ_overview")
-            );
-            NetworkHooks.openScreen(serverPlayer, provider, buf -> {
-                buf.writeInt(serverPlayer.getId());
-                buf.writeResourceLocation(defaultBodyPart);
-            });
+            var target = SlaughterAccessHelper.findLivingEntityDirectlyAbove(level, pos);
+            if (target.isEmpty()) {
+                player.displayClientMessage(Component.translatable("message.organapi.no_slaughter_target"), true);
+                return InteractionResult.CONSUME;
+            }
+            LivingEntity entity = target.get();
+            if (!SlaughterAccessHelper.canOpenChestCavity(entity)) {
+                player.displayClientMessage(Component.translatable("message.organapi.target_too_healthy"), true);
+                return InteractionResult.CONSUME;
+            }
+            SlaughterAccessHelper.applyOpenedChestRestriction(entity);
+            SlaughterAccessHelper.openOverview(serverPlayer, entity);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

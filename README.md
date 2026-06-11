@@ -23,6 +23,22 @@ Organ API 是一个基于 Forge 1.20.1 的器官/部位容器基础模组，目�
 - 游戏内永久扩展部位容量
 - 方便其他模组通过 JSON 或代码接入
 
+## Configuration
+
+模组使用 Forge common config，屠宰相关参数位于 `slaughter` 分组下，可调整：
+
+- `health_threshold_ratio`：允许开胸的血量比例阈值
+- `restriction_duration_ticks`：开胸后限制效果持续时间（tick）
+- `slowness_amplifier`：缓慢效果强度
+- `weakness_amplifier`：虚弱效果强度
+
+说明：Minecraft 原生效果 amplifier 语义为 `0 = I 级`，`1 = II 级`，依此类推。屠宰室方块与便携屠宰器共享同一组配置。
+
+## 开发者文档
+
+- 器官控制 API 示例：`docs/organ-control-api-guide.md`
+- 数据格式说明：`docs/organ-data-format.md`
+
 ## 示例内容说明
 
 仓库内自带的 `sample_*` 器官和 `*_expansion_kit` 只是演示链路，不代表最终玩法内容。后续其他模组可以只依赖 API，而不依赖这些样例物品。

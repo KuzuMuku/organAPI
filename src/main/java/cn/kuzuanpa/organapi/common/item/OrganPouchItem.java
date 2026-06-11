@@ -22,8 +22,8 @@ public class OrganPouchItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
-                    (windowId, inventory, entityPlayer) -> new BodyPartSelectionMenu(windowId, inventory),
-                    Component.translatable("menu.organapi.body_part_selection")));
+                    (windowId, inventory, entityPlayer) -> new BodyPartSelectionMenu(windowId, inventory, serverPlayer.getId()),
+                    Component.translatable("menu.organapi.body_part_selection")), buf -> buf.writeInt(serverPlayer.getId()));
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }

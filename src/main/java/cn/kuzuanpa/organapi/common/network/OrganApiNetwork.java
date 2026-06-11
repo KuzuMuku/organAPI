@@ -3,6 +3,7 @@ package cn.kuzuanpa.organapi.common.network;
 import cn.kuzuanpa.organapi.OrganApiMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -39,8 +40,8 @@ public final class OrganApiNetwork {
                 SelectBodyPartC2SPacket::handle);
     }
 
-    public static void sync(ServerPlayer player) {
-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), SyncOrganDataS2CPacket.from(player));
+    public static void sync(ServerPlayer viewer, Entity target) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> viewer), SyncOrganDataS2CPacket.from(target));
     }
 
     public static SimpleChannel channel() {

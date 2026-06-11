@@ -5,12 +5,10 @@ import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
 import cn.kuzuanpa.organapi.common.network.SelectBodyPartC2SPacket;
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +38,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
     }
 
     private void positionSlots() {
-        OrganOverviewLayout.GridDimensions grid = OrganOverviewLayout.editorGrid(menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
+        OrganOverviewLayout.GridDimensions grid = OrganOverviewLayout.editorGrid(menu.getTarget(), menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         for (int index = 0; index < OrganMenu.MAX_ORGAN_SLOTS; index++) {
             Slot slot = menu.slots.get(index);
             if (index < menu.getVisibleOrganSlotCount()) {
@@ -74,7 +72,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
     private void renderBodyAreas(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.fill(leftPos + OrganOverviewLayout.BODY_AREA_X, topPos+ OrganOverviewLayout.BODY_AREA_Y , leftPos + OrganOverviewLayout.BODY_AREA_X + OrganOverviewLayout.BODY_AREA_WIDTH, topPos + OrganOverviewLayout.BODY_AREA_Y + OrganOverviewLayout.BODY_AREA_HEIGHT , 0x11FF7777);
 
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             int absoluteX = leftPos+ 4 + OrganOverviewLayout.BODY_AREA_X + area.x();
             int absoluteY = topPos + 4 + OrganOverviewLayout.BODY_AREA_Y + area.y();
@@ -86,7 +84,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
 
             BodyPartOverview overview = menu.getOverview(area.bodyPartId());
             int capacity = Math.max(1, overview.totalCapacity());
-            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity);
+            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity, menu.getTarget());
             for (int slotIndex = 0; slotIndex < capacity; slotIndex++) {
                 int slotX = leftPos+ 4 + OrganOverviewLayout.BODY_AREA_X + OrganOverviewLayout.previewSlotX(previewLayout, slotIndex);
                 int slotY = topPos+ 4 + OrganOverviewLayout.BODY_AREA_Y + OrganOverviewLayout.previewSlotY(previewLayout, slotIndex);
@@ -121,7 +119,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
     private void renderEditorGrid(GuiGraphics graphics) {
         graphics.fill(leftPos + OrganOverviewLayout.EDITOR_PANEL_X, topPos, leftPos + OrganOverviewLayout.EDITOR_PANEL_X + OrganOverviewLayout.EDITOR_PANEL_WIDTH,  topPos + OrganOverviewLayout.EDITOR_PANEL_Y + OrganOverviewLayout.EDITOR_PANEL_HEIGHT + 4, 0x23FFFFFF);
 
-        OrganOverviewLayout.GridDimensions grid = OrganOverviewLayout.editorGrid(menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
+        OrganOverviewLayout.GridDimensions grid = OrganOverviewLayout.editorGrid(menu.getTarget(), menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         int totalWidth = grid.columns() * OrganOverviewLayout.SLOT_SIZE + 5;
         int totalHeight = grid.rows() * OrganOverviewLayout.SLOT_SIZE + 6;
         int panelX = leftPos + OrganOverviewLayout.EDITOR_PANEL_X + (OrganOverviewLayout.EDITOR_PANEL_WIDTH - totalWidth) / 2;
@@ -142,7 +140,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             int relativeX = OrganOverviewLayout.BODY_AREA_X + area.x();
             int relativeY = OrganOverviewLayout.BODY_AREA_Y + area.y();
@@ -159,11 +157,11 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             BodyPartOverview overview = menu.getOverview(area.bodyPartId());
             int capacity = Math.max(1, overview.totalCapacity());
-            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity);
+            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity, menu.getTarget());
             for (int slotIndex = 0; slotIndex < capacity && slotIndex < overview.organs().size(); slotIndex++) {
                 ItemStack stack = overview.organs().get(slotIndex);
                 if (stack.isEmpty()) {

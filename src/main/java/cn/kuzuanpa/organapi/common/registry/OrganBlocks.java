@@ -1,6 +1,7 @@
 package cn.kuzuanpa.organapi.common.registry;
 
 import cn.kuzuanpa.organapi.OrganApiMod;
+import cn.kuzuanpa.organapi.common.block.SlaughterRoomBlock;
 import cn.kuzuanpa.organapi.common.block.SurgeryRoomBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -22,8 +23,17 @@ public final class OrganBlocks {
                     .sound(SoundType.METAL)
                     .requiresCorrectToolForDrops()));
 
+    public static final RegistryObject<Block> SLAUGHTER_ROOM = BLOCKS.register("slaughter_room",
+            () -> new SlaughterRoomBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(3.5F)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops()));
+
     public static final RegistryObject<Item> SURGERY_ROOM_ITEM = OrganItems.ITEMS.register("surgery_room",
             () -> new BlockItem(SURGERY_ROOM.get(), new Item.Properties()));
+    public static final RegistryObject<Item> SLAUGHTER_ROOM_ITEM = OrganItems.ITEMS.register("slaughter_room",
+            () -> new BlockItem(SLAUGHTER_ROOM.get(), new Item.Properties()));
 
     private OrganBlocks() {
     }

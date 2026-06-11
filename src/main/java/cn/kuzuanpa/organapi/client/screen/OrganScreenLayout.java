@@ -1,10 +1,11 @@
 package cn.kuzuanpa.organapi.client.screen;
 
 import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
-import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
+import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 public final class OrganScreenLayout {
     public static final int GUI_WIDTH = 212;
@@ -16,8 +17,8 @@ public final class OrganScreenLayout {
     private OrganScreenLayout() {
     }
 
-    public static GridDimensions organGrid(ResourceLocation bodyPartId, int capacity) {
-        BodyPartDefinition definition = OrganRegistryAccess.getBodyPart(bodyPartId)
+    public static GridDimensions organGrid(Entity entity, ResourceLocation bodyPartId, int capacity) {
+        BodyPartDefinition definition = BodyPlanResolver.getBodyPart(entity, bodyPartId)
                 .orElse(BodyPartDefinition.simple(bodyPartId, Math.max(1, capacity), 0));
         int safeCapacity = Math.max(1, capacity);
         float base = (float) Math.sqrt(safeCapacity);

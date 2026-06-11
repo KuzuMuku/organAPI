@@ -3,6 +3,7 @@ package cn.kuzuanpa.organapi;
 import cn.kuzuanpa.organapi.client.ClientSetup;
 import cn.kuzuanpa.organapi.common.config.OrganApiConfig;
 import cn.kuzuanpa.organapi.common.data.BodyPartDefinitionLoader;
+import cn.kuzuanpa.organapi.common.data.BodyPlanDefinitionLoader;
 import cn.kuzuanpa.organapi.common.data.OrganDefinitionLoader;
 import cn.kuzuanpa.organapi.common.event.CommonForgeEvents;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
@@ -12,11 +13,11 @@ import cn.kuzuanpa.organapi.common.registry.OrganMenus;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.ModLoadingContext;
 
 @Mod(OrganApiMod.MOD_ID)
 public class OrganApiMod {
@@ -41,6 +42,7 @@ public class OrganApiMod {
 
     private void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(BodyPartDefinitionLoader.INSTANCE);
+        event.addListener(BodyPlanDefinitionLoader.INSTANCE);
         event.addListener(OrganDefinitionLoader.INSTANCE);
     }
 }

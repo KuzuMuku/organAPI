@@ -42,7 +42,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
                 9 * 18 + 6,
                 4 * 18 + 10);
 
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             boolean hovered = isMouseOverArea(area, mouseX, mouseY);
             int absoluteX = absoluteAreaX(area);
@@ -55,7 +55,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
 
             BodyPartOverview overview = menu.getOverview(area.bodyPartId());
             int capacity = Math.max(1, overview.totalCapacity());
-            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity);
+            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity, menu.getTarget());
             for (int slotIndex = 0; slotIndex < capacity; slotIndex++) {
                 int slotX = leftPos + BODY_OFFSET + OrganOverviewLayout.BODY_AREA_X + OrganOverviewLayout.previewSlotX(previewLayout, slotIndex);
                 int slotY = topPos + BODY_OFFSET + OrganOverviewLayout.BODY_AREA_Y + OrganOverviewLayout.previewSlotY(previewLayout, slotIndex);
@@ -96,10 +96,10 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             if (isMouseOverArea(area, mouseX, mouseY)) {
-                OrganApiNetwork.channel().sendToServer(new OpenOrganMenuC2SPacket(area.bodyPartId()));
+                OrganApiNetwork.channel().sendToServer(new OpenOrganMenuC2SPacket(menu.getTargetEntityId(), area.bodyPartId()));
                 return true;
             }
         }
@@ -121,11 +121,11 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
     }
 
     private ItemStack hoveredPreviewStack(int mouseX, int mouseY) {
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             BodyPartOverview overview = menu.getOverview(area.bodyPartId());
             int capacity = Math.max(1, overview.totalCapacity());
-            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity);
+            OrganOverviewLayout.PreviewLayout previewLayout = OrganOverviewLayout.previewLayout(area, area.bodyPartId(), capacity, menu.getTarget());
             for (int slotIndex = 0; slotIndex < capacity && slotIndex < overview.organs().size(); slotIndex++) {
                 ItemStack stack = overview.organs().get(slotIndex);
                 if (stack.isEmpty()) {
@@ -142,7 +142,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
     }
 
     private OrganOverviewLayout.BodyPartArea hoveredArea(int mouseX, int mouseY) {
-        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId());
+        List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             if (isMouseOverArea(area, mouseX, mouseY)) {
                 return area;

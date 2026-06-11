@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "organapi:surgery_room"
+    "organapi:surgery_room",
+    "organapi:slaughter_room"
   ]
 }
