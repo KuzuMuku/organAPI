@@ -3,18 +3,13 @@ package cn.kuzuanpa.organapi.client.screen;
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.network.CycleBodyPartC2SPacket;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
-public class OrganScreen extends AbstractContainerScreen<OrganMenu> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("organapi", "textures/gui/organ_screen.png");
-
+public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
     public OrganScreen(OrganMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = OrganScreenLayout.GUI_WIDTH;
@@ -71,39 +66,39 @@ public class OrganScreen extends AbstractContainerScreen<OrganMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        graphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
-
         OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         int totalWidth = grid.columns() * OrganScreenLayout.SLOT_SIZE + 6;
         int totalHeight = grid.rows() * OrganScreenLayout.SLOT_SIZE + 6;
         int panelX = leftPos + (imageWidth - totalWidth) / 2 - 3;
         int panelY = topPos + OrganScreenLayout.gridStartY() - 6;
-        graphics.fill(panelX, panelY, panelX + totalWidth, panelY + totalHeight, 0x55263A59);
+        renderPanel(graphics, 8, 4, imageWidth - 16, menu.getPlayerInventoryStartY() - 24);
+        graphics.fill(panelX - 1, panelY, panelX + totalWidth, panelY + totalHeight, STRONG_BORDER_COLOR);
 
         for (int index = 0; index < menu.getVisibleOrganSlotCount(); index++) {
             int x = leftPos + OrganScreenLayout.slotX(grid, index);
             int y = topPos + OrganScreenLayout.slotY(grid, index);
-            graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xAA173256);
-            graphics.fill(x, y, x + 16, y + 16, 0xFF3AA65A);
+            renderAbsoluteSlotBackground(graphics, x, y);
         }
+
+        int inventoryStartY = menu.getPlayerInventoryStartY();
+        renderWeakPanel(graphics, 21, inventoryStartY - 4, 9 * 18 + 6, 4 * 18 + 10);
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, 0x404040, false);
+        graphics.drawString(font, title, titleLabelX, titleLabelY, LABEL_COLOR, false);
         var selected = menu.getSelectedBodyPartId();
         graphics.drawCenteredString(font,
-                Component.translatable("body_part." + selected.getNamespace() + "." + selected.getPath()),
+                bodyPartName(selected),
                 imageWidth / 2,
                 12,
-                0x2F2A24);
+                TITLE_COLOR);
         graphics.drawCenteredString(font,
                 Component.translatable("menu.organapi.capacity", menu.getUsedCapacity(), menu.getVisibleOrganSlotCount()),
                 imageWidth / 2,
                 28,
-                0x5A5248);
-        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0x404040, false);
+                SUBTITLE_COLOR);
+        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, LABEL_COLOR, false);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cn.kuzuanpa.organapi.common.menu;
 
+import cn.kuzuanpa.organapi.api.query.BodyPartOverview;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
 import cn.kuzuanpa.organapi.common.registry.OrganMenus;
@@ -42,11 +43,11 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
     private void addPlayerInventory(Inventory inventory) {
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                addSlot(new Slot(inventory, column + row * 9 + 9, 30 + column * 18, 140 + row * 18));
+                addSlot(new Slot(inventory, column + row * 9 + 9, 142 + column * 18, 156 + row * 18));
             }
         }
         for (int hotbar = 0; hotbar < 9; hotbar++) {
-            addSlot(new Slot(inventory, hotbar, 30 + hotbar * 18, 198));
+            addSlot(new Slot(inventory, hotbar, 142 + hotbar * 18, 216));
         }
     }
 
@@ -72,6 +73,10 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
 
     public ResourceLocation getSelectedBodyPartId() {
         return bodyParts.get(selectedBodyPartIndex);
+    }
+
+    public BodyPartOverview getOverview(ResourceLocation bodyPartId) {
+        return OrganQueryService.getOverview(player, bodyPartId);
     }
 
     public ItemStack getPreviewStack(ResourceLocation bodyPartId) {
