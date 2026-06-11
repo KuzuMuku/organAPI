@@ -1,8 +1,15 @@
 {
   "translation_key": "body_part.organapi.head",
   "default_capacity": 2,
+  "max_capacity": 16,
   "sort_order": 0,
   "visual_width_ratio": 0.7,
   "visual_height_ratio": 0.7,
-  "accepted_tags": ["organapi:organs"]
+  "accepted_tags": ["organapi:organs"],
+  "overview_area": {
+    "x": 36,
+    "y": 0,
+    "width": 28,
+    "height": 28
+  }
 }

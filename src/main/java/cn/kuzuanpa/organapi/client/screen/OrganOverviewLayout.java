@@ -101,16 +101,10 @@ public final class OrganOverviewLayout {
     }
 
     private static BodyPartArea createBodyPartArea(ResourceLocation bodyPartId, int index, boolean selected) {
-        return switch (bodyPartId.getPath()) {
-            case "head" -> new BodyPartArea(bodyPartId, index, 36, 0, 28, 28, selected);
-            case "chest" -> new BodyPartArea(bodyPartId, index, 26, 34, 48, 58, selected);
-            case "abdomen" -> new BodyPartArea(bodyPartId, index, 26, 96, 48, 40, selected);
-            case "left_arm" -> new BodyPartArea(bodyPartId, index, 0, 34, 22, 80, selected);
-            case "right_arm" -> new BodyPartArea(bodyPartId, index, 78, 34, 22, 80, selected);
-            case "left_leg" -> new BodyPartArea(bodyPartId, index, 25, 140, 22, 78, selected);
-            case "right_leg" -> new BodyPartArea(bodyPartId, index, 53, 140, 22, 78, selected);
-            default -> new BodyPartArea(bodyPartId, index, 4, 12 + index * 24, 48, 20, selected);
-        };
+        return OrganRegistryAccess.getBodyPart(bodyPartId)
+                .map(BodyPartDefinition::overviewArea)
+                .map(area -> new BodyPartArea(bodyPartId, index, area.x(), area.y(), area.width(), area.height(), selected))
+                .orElseGet(() -> new BodyPartArea(bodyPartId, index, 4, 12 + index * 24, 48, 20, selected));
     }
 
     public record GridDimensions(int columns, int rows) {

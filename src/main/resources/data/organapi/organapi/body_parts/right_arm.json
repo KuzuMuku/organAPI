@@ -1,8 +1,15 @@
 {
   "translation_key": "body_part.organapi.right_arm",
   "default_capacity": 2,
+  "max_capacity": 24,
   "sort_order": 4,
   "visual_width_ratio": 0.5,
   "visual_height_ratio": 1.0,
-  "accepted_tags": ["organapi:organs"]
+  "accepted_tags": ["organapi:organs"],
+  "overview_area": {
+    "x": 78,
+    "y": 34,
+    "width": 22,
+    "height": 80
+  }
 }

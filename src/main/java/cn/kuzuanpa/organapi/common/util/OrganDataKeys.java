@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public final class OrganDataKeys {
+    /** Maximum organ slots current menus expose; gameplay capacity is defined by body-part data. */
     public static final int MAX_VISIBLE_SLOTS = 36;
     public static final ResourceLocation DEFAULT_BODY_PART = ResourceLocation.fromNamespaceAndPath("organapi", "head");
     public static final ItemStack EMPTY = ItemStack.EMPTY;

@@ -1,8 +1,15 @@
 {
   "translation_key": "body_part.organapi.chest",
   "default_capacity": 4,
+  "max_capacity": 36,
   "sort_order": 1,
   "visual_width_ratio": 1.3,
   "visual_height_ratio": 1.2,
-  "accepted_tags": ["organapi:organs"]
+  "accepted_tags": ["organapi:organs"],
+  "overview_area": {
+    "x": 26,
+    "y": 34,
+    "width": 48,
+    "height": 58
+  }
 }

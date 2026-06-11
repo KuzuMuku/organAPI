@@ -12,15 +12,24 @@ public record BodyPartDefinition(
         ResourceLocation id,
         String translationKey,
         int defaultCapacity,
+        Integer maxCapacity,
         int sortOrder,
         List<TagKey<Item>> acceptedTags,
         float visualWidthRatio,
-        float visualHeightRatio
+        float visualHeightRatio,
+        OverviewArea overviewArea
 ) {
     public BodyPartDefinition {
+        defaultCapacity = Math.max(0, defaultCapacity);
+        if (maxCapacity != null) {
+            maxCapacity = Math.max(defaultCapacity, maxCapacity);
+        }
         acceptedTags = List.copyOf(acceptedTags);
         visualWidthRatio = Math.max(0.1F, visualWidthRatio);
         visualHeightRatio = Math.max(0.1F, visualHeightRatio);
+        if (overviewArea != null) {
+            overviewArea = new OverviewArea(overviewArea.x(), overviewArea.y(), Math.max(1, overviewArea.width()), Math.max(1, overviewArea.height()));
+        }
     }
 
     public Component getDisplayName() {
@@ -40,7 +49,10 @@ public record BodyPartDefinition(
     }
 
     public static BodyPartDefinition simple(ResourceLocation id, int defaultCapacity, int sortOrder) {
-        return new BodyPartDefinition(id, "body_part." + id.getNamespace() + "." + id.getPath(), defaultCapacity, sortOrder,
-                List.of(ItemTags.create(ResourceLocation.fromNamespaceAndPath("organapi", "organs"))), 1.0F, 1.0F);
+        return new BodyPartDefinition(id, "body_part." + id.getNamespace() + "." + id.getPath(), defaultCapacity, null, sortOrder,
+                List.of(ItemTags.create(ResourceLocation.fromNamespaceAndPath("organapi", "organs"))), 1.0F, 1.0F, null);
+    }
+
+    public record OverviewArea(int x, int y, int width, int height) {
     }
 }
