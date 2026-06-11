@@ -10,8 +10,8 @@ public final class OrganScreenLayout {
     public static final int GUI_WIDTH = 212;
     public static final int GUI_HEIGHT = 236;
     public static final int SLOT_SIZE = 18;
-    public static final int ORGAN_SLOT_START_Y = 48;
-    public static final int PLAYER_INV_START_Y = 154;
+    public static final int ORGAN_SLOT_START_Y = 18;
+    public static final int PLAYER_INV_START_Y = 144;
 
     private OrganScreenLayout() {
     }
@@ -31,8 +31,8 @@ public final class OrganScreenLayout {
         return (GUI_WIDTH - grid.columns() * SLOT_SIZE) / 2;
     }
 
-    public static int gridStartY() {
-        return ORGAN_SLOT_START_Y;
+    public static int gridStartY(GridDimensions grid) {
+        return  ((PLAYER_INV_START_Y) - grid.rows() * SLOT_SIZE) / 2 ;
     }
 
     public static int slotX(GridDimensions grid, int index) {
@@ -40,7 +40,7 @@ public final class OrganScreenLayout {
     }
 
     public static int slotY(GridDimensions grid, int index) {
-        return gridStartY() + (index / grid.columns()) * SLOT_SIZE;
+        return gridStartY(grid) + (index / grid.columns()) * SLOT_SIZE;
     }
 
     public static List<Integer> visibleRows(GridDimensions grid) {

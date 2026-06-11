@@ -9,6 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
+import static cn.kuzuanpa.organapi.client.screen.OrganScreenLayout.*;
+
 public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
     public OrganScreen(OrganMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -23,14 +25,6 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(Button.builder(Component.literal("<"), button ->
-                        OrganApiNetwork.channel().sendToServer(new CycleBodyPartC2SPacket(-1)))
-                .bounds(leftPos + 10, topPos + 24, 20, 20)
-                .build());
-        addRenderableWidget(Button.builder(Component.literal(">"), button ->
-                        OrganApiNetwork.channel().sendToServer(new CycleBodyPartC2SPacket(1)))
-                .bounds(leftPos + imageWidth - 30, topPos + 24, 20, 20)
-                .build());
         positionSlots();
     }
 
@@ -69,8 +63,8 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
         OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         int totalWidth = grid.columns() * OrganScreenLayout.SLOT_SIZE + 6;
         int totalHeight = grid.rows() * OrganScreenLayout.SLOT_SIZE + 6;
-        int panelX = leftPos + (imageWidth - totalWidth) / 2 - 3;
-        int panelY = topPos + OrganScreenLayout.gridStartY() - 6;
+        int panelX = leftPos + (imageWidth - totalWidth) / 2 - 1;
+        int panelY = topPos + (PLAYER_INV_START_Y - totalHeight)/2 - 1;
         renderPanel(graphics, 8, 4, imageWidth - 16, menu.getPlayerInventoryStartY() - 24);
         graphics.fill(panelX - 1, panelY, panelX + totalWidth, panelY + totalHeight, STRONG_BORDER_COLOR);
 
@@ -93,11 +87,6 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
                 imageWidth / 2,
                 12,
                 TITLE_COLOR);
-        graphics.drawCenteredString(font,
-                Component.translatable("menu.organapi.capacity", menu.getUsedCapacity(), menu.getVisibleOrganSlotCount()),
-                imageWidth / 2,
-                28,
-                SUBTITLE_COLOR);
         graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, LABEL_COLOR, false);
     }
 
