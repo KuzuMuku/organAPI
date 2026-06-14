@@ -22,6 +22,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.NotNull;
 
 public class BodyPartDefinitionLoader extends SimplePreparableReloadListener<Map<ResourceLocation, BodyPartDefinition>> {
     public static final BodyPartDefinitionLoader INSTANCE = new BodyPartDefinitionLoader();
@@ -32,16 +33,15 @@ public class BodyPartDefinitionLoader extends SimplePreparableReloadListener<Map
     }
 
     @Override
-    protected Map<ResourceLocation, BodyPartDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected @NotNull Map<ResourceLocation, BodyPartDefinition> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         Map<ResourceLocation, BodyPartDefinition> definitions = new LinkedHashMap<>();
         bootstrap(definitions);
         Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIRECTORY, path -> path.getPath().endsWith(".json"));
         for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
             try (Reader reader = entry.getValue().openAsReader()) {
                 JsonElement element = GsonHelper.fromJson(GSON, reader, JsonElement.class);
-                if (element == null || !element.isJsonObject()) {
-                    continue;
-                }
+                if (!element.isJsonObject()) continue;
+
                 JsonObject json = element.getAsJsonObject();
                 ResourceLocation definitionId = toDefinitionId(entry.getKey(), DIRECTORY);
                 String translationKey = GsonHelper.getAsString(json, "translation_key",
@@ -64,7 +64,7 @@ public class BodyPartDefinitionLoader extends SimplePreparableReloadListener<Map
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, BodyPartDefinition> definitions, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(@NotNull Map<ResourceLocation, BodyPartDefinition> definitions, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         OrganRegistryAccess.replaceBodyParts(definitions);
     }
 

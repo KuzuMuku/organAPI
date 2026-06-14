@@ -1,13 +1,11 @@
 package cn.kuzuanpa.organapi.client.screen;
 
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
-import cn.kuzuanpa.organapi.common.network.CycleBodyPartC2SPacket;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 
 import static cn.kuzuanpa.organapi.client.screen.OrganScreenLayout.*;
 
@@ -59,7 +57,7 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         OrganScreenLayout.GridDimensions grid = OrganScreenLayout.organGrid(menu.getTarget(), menu.getSelectedBodyPartId(), menu.getVisibleOrganSlotCount());
         int totalWidth = grid.columns() * OrganScreenLayout.SLOT_SIZE + 6;
         int totalHeight = grid.rows() * OrganScreenLayout.SLOT_SIZE + 6;
@@ -91,7 +89,7 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         renderTooltip(graphics, mouseX, mouseY);

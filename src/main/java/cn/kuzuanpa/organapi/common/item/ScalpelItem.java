@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class ScalpelItem extends Item {
     private static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("0d8d11c5-fb6a-4a6b-ae2c-5b59e12f0aa1");
@@ -31,12 +32,12 @@ public class ScalpelItem extends Item {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-        return slot == EquipmentSlot.MAINHAND ? defaultModifiers : super.getDefaultAttributeModifiers(slot);
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+        return slot == EquipmentSlot.MAINHAND ? defaultModifiers : super.getAttributeModifiers(slot, stack);
     }
 
     @Override
-    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
         boolean result = super.hurtEnemy(stack, target, attacker);
         if (!target.level().isClientSide && !target.isAlive()) {
             dropOrgans(target);
@@ -46,8 +47,8 @@ public class ScalpelItem extends Item {
 
     private void dropOrgans(LivingEntity target) {
         for (BodyPartDefinition bodyPart : OrganApi.getBodyParts()) {
-            ItemStack[] organs = OrganQueryService.getInstalledOrgans(target, bodyPart.id()).toArray(ItemStack[]::new);
-            for (int slotIndex = 0; slotIndex < organs.length; slotIndex++) {
+            int organAmount = OrganQueryService.getInstalledOrgans(target, bodyPart.id()).size();
+            for (int slotIndex = 0; slotIndex < organAmount; slotIndex++) {
                 ItemStack removed = OrganApi.removeOrgan(target, bodyPart.id(), slotIndex);
                 if (!removed.isEmpty()) {
                     target.level().addFreshEntity(new ItemEntity(target.level(), target.getX(), target.getY(), target.getZ(), removed));

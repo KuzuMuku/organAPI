@@ -15,6 +15,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class BodyPartSelectionMenu extends AbstractContainerMenu implements SelectableBodyPartMenu {
     private final Player player;
@@ -117,12 +118,12 @@ public class BodyPartSelectionMenu extends AbstractContainerMenu implements Sele
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return player == this.player && player.isAlive() && target.isAlive();
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
         return ItemStack.EMPTY;
     }
 }

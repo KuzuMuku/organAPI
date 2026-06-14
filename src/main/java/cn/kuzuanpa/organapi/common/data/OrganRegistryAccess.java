@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public final class OrganRegistryAccess {
     private static final Map<ResourceLocation, BodyPartDefinition> BODY_PARTS = new ConcurrentHashMap<>();
@@ -45,8 +46,8 @@ public final class OrganRegistryAccess {
         if (stack.getItem() instanceof OrganItem organItem) {
             return getOrgan(organItem.getDefinitionId(stack));
         }
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        return itemId == null ? Optional.empty() : Optional.ofNullable(ORGANS_BY_ITEM.get(itemId));
+        ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return Optional.ofNullable(ORGANS_BY_ITEM.get(itemId));
     }
 
     public static void replaceBodyParts(Map<ResourceLocation, BodyPartDefinition> replacements) {

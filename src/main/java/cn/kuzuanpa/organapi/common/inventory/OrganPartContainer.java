@@ -7,6 +7,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class OrganPartContainer implements Container {
     private final Player viewer;
@@ -43,12 +44,12 @@ public class OrganPartContainer implements Container {
     }
 
     @Override
-    public ItemStack getItem(int slot) {
+    public @NotNull ItemStack getItem(int slot) {
         return getHolder().map(holder -> holder.getOrgan(bodyPartId, slot)).orElse(ItemStack.EMPTY);
     }
 
     @Override
-    public ItemStack removeItem(int slot, int amount) {
+    public @NotNull ItemStack removeItem(int slot, int amount) {
         ItemStack stack = getItem(slot);
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
@@ -57,7 +58,7 @@ public class OrganPartContainer implements Container {
     }
 
     @Override
-    public ItemStack removeItemNoUpdate(int slot) {
+    public @NotNull ItemStack removeItemNoUpdate(int slot) {
         return getHolder().map(holder -> holder.removeOrgan(bodyPartId, slot)).orElse(ItemStack.EMPTY);
     }
 
@@ -73,7 +74,7 @@ public class OrganPartContainer implements Container {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return player == viewer && player.isAlive() && target.isAlive();
     }
 

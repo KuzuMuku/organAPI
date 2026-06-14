@@ -20,6 +20,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlotContext, SelectableBodyPartMenu {
     public static final int MAX_ORGAN_SLOTS = OrganDataKeys.MAX_VISIBLE_SLOTS;
@@ -62,7 +63,7 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
 
     private int resolveBodyPartIndex(ResourceLocation bodyPartId) {
         int index = bodyParts.indexOf(bodyPartId);
-        return index >= 0 ? index : 0;
+        return Math.max(index, 0);
     }
 
     private void addOrganSlots() {
@@ -173,7 +174,7 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
     }
 
     @Override
-    public void removed(Player player) {
+    public void removed(@NotNull Player player) {
         super.removed(player);
         boolean wasDirty = player instanceof ServerPlayer
                 && IOrganHolder.resolve(target).map(IOrganHolder::isDirty).orElse(false);
@@ -195,12 +196,12 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return organContainer.stillValid(player);
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
         Slot slot = slots.get(index);
         if (!slot.hasItem()) {
             return ItemStack.EMPTY;

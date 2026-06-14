@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSelectionMenu> {
     private static final int BODY_OFFSET = 4;
@@ -29,7 +30,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         renderWeakPanel(graphics,
                 OrganOverviewLayout.BODY_AREA_X,
                 OrganOverviewLayout.BODY_AREA_Y,
@@ -107,7 +108,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 

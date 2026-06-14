@@ -23,9 +23,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public class OrganApiMod {
     public static final String MOD_ID = "organapi";
 
-    public OrganApiMod() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, OrganApiConfig.COMMON_SPEC);
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public OrganApiMod(FMLJavaModLoadingContext context) {
+        IEventBus modBus = context.getModEventBus();
+
+        context.registerConfig(ModConfig.Type.COMMON, OrganApiConfig.COMMON_SPEC);
         OrganItems.ITEMS.register(modBus);
         OrganBlocks.BLOCKS.register(modBus);
         OrganMenus.MENU_TYPES.register(modBus);

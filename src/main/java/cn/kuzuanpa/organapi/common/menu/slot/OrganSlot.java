@@ -6,6 +6,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class OrganSlot extends Slot {
     private final OrganSlotContext menu;
@@ -18,7 +19,7 @@ public class OrganSlot extends Slot {
     }
 
     @Override
-    public boolean mayPlace(ItemStack stack) {
+    public boolean mayPlace(@NotNull ItemStack stack) {
         return isActive()
                 && OrganRegistryAccess.getBodyPart(menu.getSelectedBodyPartId()).map(def -> def.accepts(stack)).orElse(false)
                 && OrganRegistryAccess.getOrgan(stack).map(def -> def.supports(menu.getSelectedBodyPartId())).orElse(true);
@@ -30,7 +31,7 @@ public class OrganSlot extends Slot {
     }
 
     @Override
-    public boolean mayPickup(Player player) {
+    public boolean mayPickup(@NotNull Player player) {
         return isActive();
     }
 

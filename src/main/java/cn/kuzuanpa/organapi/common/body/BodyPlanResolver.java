@@ -34,10 +34,7 @@ public final class BodyPlanResolver {
         Optional<BodyPlanDefinition> plan = ForgeRegistries.ENTITY_TYPES.getKey(entityType) == null
                 ? Optional.empty()
                 : BodyPlanRegistryAccess.getBodyPlanForEntityType(ForgeRegistries.ENTITY_TYPES.getKey(entityType));
-        if (plan.isPresent()) {
-            return resolve(plan.get());
-        }
-        return fallbackPlan();
+        return plan.map(BodyPlanResolver::resolve).orElseGet(BodyPlanResolver::fallbackPlan);
     }
 
     public static List<ResourceLocation> getOrderedBodyPartIds(Entity entity) {
@@ -72,7 +69,7 @@ public final class BodyPlanResolver {
                     ? override.capacity()
                     : template.map(BodyPartDefinition::defaultCapacity).orElse(0));
             Integer maxCapacity = override.maxCapacity() != null
-                    ? Math.max(defaultCapacity, override.maxCapacity())
+                    ? Integer.valueOf(Math.max(defaultCapacity, override.maxCapacity()))
                     : template.map(BodyPartDefinition::maxCapacity).orElse(null);
             int sortOrder = override.sortOrder() != null
                     ? override.sortOrder()

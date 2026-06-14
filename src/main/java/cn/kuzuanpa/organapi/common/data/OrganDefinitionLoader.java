@@ -20,6 +20,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 public class OrganDefinitionLoader extends SimplePreparableReloadListener<Map<ResourceLocation, OrganDefinition>> {
@@ -32,13 +33,13 @@ public class OrganDefinitionLoader extends SimplePreparableReloadListener<Map<Re
     }
 
     @Override
-    protected Map<ResourceLocation, OrganDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected @NotNull Map<ResourceLocation, OrganDefinition> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         Map<ResourceLocation, OrganDefinition> definitions = new LinkedHashMap<>();
         Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIRECTORY, path -> path.getPath().endsWith(".json"));
         for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
             try (Reader reader = entry.getValue().openAsReader()) {
                 JsonElement element = GsonHelper.fromJson(GSON, reader, JsonElement.class);
-                if (element == null || !element.isJsonObject()) {
+                if (!element.isJsonObject()) {
                     continue;
                 }
                 ResourceLocation definitionId = toDefinitionId(entry.getKey(), DIRECTORY);
@@ -62,7 +63,7 @@ public class OrganDefinitionLoader extends SimplePreparableReloadListener<Map<Re
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, OrganDefinition> definitions, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, OrganDefinition> definitions, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         Map<ResourceLocation, OrganDefinition> byItem = new LinkedHashMap<>();
         Map<ResourceLocation, List<ResourceLocation>> conflicts = new LinkedHashMap<>();
         for (OrganDefinition definition : definitions.values()) {

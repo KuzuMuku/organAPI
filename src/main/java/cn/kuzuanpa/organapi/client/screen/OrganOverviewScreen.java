@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMenu> {
 
@@ -62,7 +63,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         renderBodyAreas(graphics, mouseX, mouseY);
         renderEditorGrid(graphics);
         graphics.fill(leftPos + OrganOverviewLayout.INVENTORY_START_X -4, topPos+ OrganOverviewLayout.INVENTORY_START_Y -4, leftPos + OrganOverviewLayout.INVENTORY_START_X + 9*18 +2, topPos + OrganOverviewLayout.INVENTORY_START_Y + 4*18+6 , 0x11FF7777);
@@ -135,7 +136,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
     }
 
     @Override
@@ -153,7 +154,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 

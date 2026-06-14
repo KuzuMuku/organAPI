@@ -187,7 +187,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         bodyParts.clear();
         CompoundTag bodyPartsTag = nbt.getCompound("body_parts");
         for (String key : bodyPartsTag.getAllKeys()) {
-            ResourceLocation id = new ResourceLocation(key);
+            ResourceLocation id = ResourceLocation.parse(key);
             CompoundTag partTag = bodyPartsTag.getCompound(key);
             BodyPartState state = getState(id);
             state.bonusCapacity = partTag.getInt("bonus_capacity");

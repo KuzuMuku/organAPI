@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OrganHolderProvider implements ICapabilitySerializable<CompoundTag> {
-    public static final ResourceLocation ID = new ResourceLocation(OrganApiMod.MOD_ID, "organ_holder");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "organ_holder");
     private static final String PERSISTENT_DATA_KEY = OrganApiMod.MOD_ID + ".organ_holder";
 
     private final Entity owner;

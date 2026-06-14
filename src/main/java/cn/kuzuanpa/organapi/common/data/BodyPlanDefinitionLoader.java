@@ -23,6 +23,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.NotNull;
 
 public class BodyPlanDefinitionLoader extends SimplePreparableReloadListener<Map<ResourceLocation, BodyPlanDefinition>> {
     public static final BodyPlanDefinitionLoader INSTANCE = new BodyPlanDefinitionLoader();
@@ -33,16 +34,15 @@ public class BodyPlanDefinitionLoader extends SimplePreparableReloadListener<Map
     }
 
     @Override
-    protected Map<ResourceLocation, BodyPlanDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected @NotNull Map<ResourceLocation, BodyPlanDefinition> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         Map<ResourceLocation, BodyPlanDefinition> definitions = new LinkedHashMap<>();
         bootstrap(definitions);
         Map<ResourceLocation, Resource> resources = resourceManager.listResources(DIRECTORY, path -> path.getPath().endsWith(".json"));
         for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
             try (Reader reader = entry.getValue().openAsReader()) {
                 JsonElement element = GsonHelper.fromJson(GSON, reader, JsonElement.class);
-                if (element == null || !element.isJsonObject()) {
-                    continue;
-                }
+                if (!element.isJsonObject()) continue;
+
                 JsonObject json = element.getAsJsonObject();
                 ResourceLocation planId = toDefinitionId(entry.getKey(), DIRECTORY);
                 List<ResourceLocation> entityTypes = readResourceLocations(json.has("entity_types")
@@ -60,7 +60,7 @@ public class BodyPlanDefinitionLoader extends SimplePreparableReloadListener<Map
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, BodyPlanDefinition> definitions, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(@NotNull Map<ResourceLocation, BodyPlanDefinition> definitions, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         BodyPlanRegistryAccess.replaceBodyPlans(definitions);
     }
 

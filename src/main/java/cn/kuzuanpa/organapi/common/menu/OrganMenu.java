@@ -1,6 +1,7 @@
 package cn.kuzuanpa.organapi.common.menu;
 
 import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
+import cn.kuzuanpa.organapi.api.organ.OrganDefinition;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
@@ -20,6 +21,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext {
     public static final int MAX_ORGAN_SLOTS = OrganDataKeys.MAX_VISIBLE_SLOTS;
@@ -62,7 +64,7 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
 
     private int resolveBodyPartIndex(ResourceLocation bodyPartId) {
         int index = bodyParts.indexOf(bodyPartId);
-        return index >= 0 ? index : 0;
+        return Math.max(index, 0);
     }
 
     private void addOrganSlots() {
@@ -161,7 +163,7 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
         for (int i = 0; i < getVisibleOrganSlotCount(); i++) {
             ItemStack stack = slots.get(i).getItem();
             if (!stack.isEmpty()) {
-                used += OrganRegistryAccess.getOrgan(stack).map(def -> def.size()).orElse(1);
+                used += OrganRegistryAccess.getOrgan(stack).map(OrganDefinition::size).orElse(1);
             }
         }
         return used;
@@ -186,7 +188,7 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
     }
 
     @Override
-    public void removed(Player player) {
+    public void removed(@NotNull Player player) {
         super.removed(player);
         boolean wasDirty = player instanceof ServerPlayer
                 && IOrganHolder.resolve(target).map(IOrganHolder::isDirty).orElse(false);
@@ -208,12 +210,12 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return organContainer.stillValid(player);
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
         Slot slot = slots.get(index);
         if (!slot.hasItem()) {
             return ItemStack.EMPTY;
