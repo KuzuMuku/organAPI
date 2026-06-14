@@ -19,6 +19,8 @@ public record BodyPartDefinition(
         float visualHeightRatio,
         OverviewArea overviewArea
 ) {
+    private static final TagKey<Item> ORGAN_TAG = ItemTags.create(ResourceLocation.fromNamespaceAndPath("organapi", "organs"));
+
     public BodyPartDefinition {
         defaultCapacity = Math.max(0, defaultCapacity);
         if (maxCapacity != null) {
@@ -37,7 +39,7 @@ public record BodyPartDefinition(
     }
 
     public boolean accepts(ItemStack stack) {
-        if (acceptedTags.isEmpty()) {
+        if (acceptedTags.isEmpty() || !stack.is(ORGAN_TAG)) {
             return true;
         }
         for (TagKey<Item> tagKey : acceptedTags) {
@@ -50,7 +52,7 @@ public record BodyPartDefinition(
 
     public static BodyPartDefinition simple(ResourceLocation id, int defaultCapacity, int sortOrder) {
         return new BodyPartDefinition(id, "body_part." + id.getNamespace() + "." + id.getPath(), defaultCapacity, null, sortOrder,
-                List.of(ItemTags.create(ResourceLocation.fromNamespaceAndPath("organapi", "organs"))), 1.0F, 1.0F, null);
+                List.of(ORGAN_TAG), 1.0F, 1.0F, null);
     }
 
     public record OverviewArea(int x, int y, int width, int height) {

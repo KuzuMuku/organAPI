@@ -21,7 +21,7 @@ public class OrganSlot extends Slot {
     public boolean mayPlace(ItemStack stack) {
         return isActive()
                 && OrganRegistryAccess.getBodyPart(menu.getSelectedBodyPartId()).map(def -> def.accepts(stack)).orElse(false)
-                && OrganRegistryAccess.getOrgan(stack).map(def -> def.supports(menu.getSelectedBodyPartId())).orElse(false);
+                && OrganRegistryAccess.getOrgan(stack).map(def -> def.supports(menu.getSelectedBodyPartId())).orElse(true);
     }
 
     @Override

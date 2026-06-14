@@ -220,10 +220,10 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
             return OrganInstallResult.success(Component.translatable("message.organapi.removed"));
         }
         Optional<OrganDefinition> organ = OrganRegistryAccess.getOrgan(stack);
-        if (organ.isEmpty()) {
-            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_organ"));
+        if (!bodyPart.get().accepts(stack)) {
+            return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_body_part"));
         }
-        if (!bodyPart.get().accepts(stack) || !organ.get().supports(bodyPartId)) {
+        if (organ.isPresent() && !organ.get().supports(bodyPartId)) {
             return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_body_part"));
         }
         ItemStack previous = state.organs.get(slotIndex);

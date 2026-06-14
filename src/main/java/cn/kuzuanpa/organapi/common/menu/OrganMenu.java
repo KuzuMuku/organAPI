@@ -188,7 +188,11 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
     @Override
     public void removed(Player player) {
         super.removed(player);
+        boolean wasDirty = player instanceof ServerPlayer
+                && IOrganHolder.resolve(target).map(IOrganHolder::isDirty).orElse(false);
         syncOrganDataIfDirty();
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new cn.kuzuanpa.organapi.api.event.OrganStateCommittedEvent(player, target, "organ_menu", wasDirty));
     }
 
     private void syncOrganDataIfDirty() {

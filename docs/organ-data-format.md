@@ -4,7 +4,7 @@
 
 路径：`data/<namespace>/organapi/body_parts/<id>.json`
 
-这些 JSON 现在表示“部位模板”，用于定义一个部位的默认属性；实体实际拥有哪些部位、容量多少、渲染区域在哪，改由 `body_plans` 决定。
+这些 JSON 表示“部位模板”，用于定义一个部位的默认属性；实体实际拥有哪些部位、容量多少、渲染区域在哪，改由 `body_plans` 决定。
 
 示例：
 
@@ -121,6 +121,49 @@ body plan 用于定义某类实体实际拥有哪些部位，以及对模板的�
 - `size`: 占用容量
 - `tooltips`: 预留说明文本
 - `tags`: 预留分类标签
+
+## Surgery / Slaughter access
+
+### Surgery room
+
+- `SurgeryRoomBlock` 打开 `OrganOverviewMenu`
+- target 为当前被手术/查看的实体
+- 在界面中点击 body area 可切换当前编辑部位
+
+### Portable organ editor
+
+- `OrganPouchItem` / `chest_opener` 先打开 `BodyPartSelectionMenu`
+- 选择部位后通过 `OpenOrganMenuC2SPacket` 打开 `OrganMenu`
+
+### Slaughter room
+
+- `SlaughterRoomBlock` 会查找方块正上方的活着 `LivingEntity`
+- 若目标当前血量比例 `<= slaughter.health_threshold_ratio`，则为其施加限制效果并打开 `OrganOverviewMenu`
+- 若没有目标或目标血量过高，则不会打开 UI
+
+### Portable slaughter tool
+
+- `SlaughterToolItem` 直接对目标 `LivingEntity` 使用
+- 若目标当前血量比例 `<= slaughter.health_threshold_ratio`，则为其施加限制效果并打开同一个 `OrganOverviewMenu`
+
+## Slaughter config
+
+Forge common config 中的 `slaughter` 分组当前提供以下键：
+
+- `slaughter.health_threshold_ratio`
+  - 默认：`0.30`
+  - 含义：目标当前血量 / 最大血量 `<=` 该值时，允许开胸
+- `slaughter.restriction_duration_ticks`
+  - 默认：`600`
+  - 含义：开胸后施加的限制效果持续时长（tick）
+- `slaughter.slowness_amplifier`
+  - 默认：`4`
+  - 含义：开胸后施加的缓慢效果 amplifier
+- `slaughter.weakness_amplifier`
+  - 默认：`2`
+  - 含义：开胸后施加的虚弱效果 amplifier
+
+说明：Minecraft 原生效果 amplifier 语义为 `0 = I 级`，`1 = II 级`，依此类推。屠宰室与便携屠宰器共用同一组配置。
 
 ## 持久化结构
 
