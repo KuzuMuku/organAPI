@@ -5,8 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +20,13 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.slf4j.Logger;
 
 public class OrganDefinitionLoader extends SimplePreparableReloadListener<Map<ResourceLocation, OrganDefinition>> {
     public static final OrganDefinitionLoader INSTANCE = new OrganDefinitionLoader();
     private static final Gson GSON = new GsonBuilder().create();
     private static final String DIRECTORY = "organapi/organs";
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private OrganDefinitionLoader() {
     }
@@ -59,7 +63,24 @@ public class OrganDefinitionLoader extends SimplePreparableReloadListener<Map<Re
 
     @Override
     protected void apply(Map<ResourceLocation, OrganDefinition> definitions, ResourceManager resourceManager, ProfilerFiller profiler) {
-        OrganRegistryAccess.replaceOrgans(definitions);
+        Map<ResourceLocation, OrganDefinition> byItem = new LinkedHashMap<>();
+        Map<ResourceLocation, List<ResourceLocation>> conflicts = new LinkedHashMap<>();
+        for (OrganDefinition definition : definitions.values()) {
+            OrganDefinition previous = byItem.putIfAbsent(definition.itemId(), definition);
+            if (previous == null) {
+                continue;
+            }
+            conflicts.computeIfAbsent(definition.itemId(), key -> {
+                List<ResourceLocation> ids = new ArrayList<>();
+                ids.add(previous.id());
+                return ids;
+            }).add(definition.id());
+        }
+        conflicts.forEach((itemId, ids) -> {
+            byItem.remove(itemId);
+            LOGGER.warn("Ignoring plain-item organ fallback for {} because multiple organ definitions reference it: {}", itemId, ids);
+        });
+        OrganRegistryAccess.replaceOrgans(definitions, byItem);
     }
 
     private static ResourceLocation toDefinitionId(ResourceLocation fileId, String directory) {

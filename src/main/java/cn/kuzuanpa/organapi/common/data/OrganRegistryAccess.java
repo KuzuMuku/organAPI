@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public final class OrganRegistryAccess {
     private static final Map<ResourceLocation, BodyPartDefinition> BODY_PARTS = new ConcurrentHashMap<>();
     private static final Map<ResourceLocation, OrganDefinition> ORGANS = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, OrganDefinition> ORGANS_BY_ITEM = new ConcurrentHashMap<>();
 
     private OrganRegistryAccess() {
     }
@@ -43,7 +45,8 @@ public final class OrganRegistryAccess {
         if (stack.getItem() instanceof OrganItem organItem) {
             return getOrgan(organItem.getDefinitionId(stack));
         }
-        return Optional.empty();
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        return itemId == null ? Optional.empty() : Optional.ofNullable(ORGANS_BY_ITEM.get(itemId));
     }
 
     public static void replaceBodyParts(Map<ResourceLocation, BodyPartDefinition> replacements) {
@@ -51,8 +54,10 @@ public final class OrganRegistryAccess {
         BODY_PARTS.putAll(replacements);
     }
 
-    public static void replaceOrgans(Map<ResourceLocation, OrganDefinition> replacements) {
+    public static void replaceOrgans(Map<ResourceLocation, OrganDefinition> replacements, Map<ResourceLocation, OrganDefinition> itemReplacements) {
         ORGANS.clear();
         ORGANS.putAll(replacements);
+        ORGANS_BY_ITEM.clear();
+        ORGANS_BY_ITEM.putAll(itemReplacements);
     }
 }

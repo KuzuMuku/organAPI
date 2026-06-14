@@ -228,7 +228,8 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         }
         ItemStack previous = state.organs.get(slotIndex);
         int usedWithoutPrevious = getUsedCapacity(bodyPartId) - getSize(previous);
-        if (usedWithoutPrevious + organ.get().size() > getCapacity(bodyPartId)) {
+        int stackSize = organ.map(OrganDefinition::size).orElseGet(() -> getSize(stack));
+        if (usedWithoutPrevious + stackSize > getCapacity(bodyPartId)) {
             return OrganInstallResult.fail(Component.translatable("message.organapi.not_enough_capacity"));
         }
         state.organs.set(slotIndex, stack.copyWithCount(1));
