@@ -18,12 +18,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.NotNull;
 
 public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<CompoundTag> {
     private final Entity owner;
     private final Map<ResourceLocation, BodyPartState> bodyParts = new HashMap<>();
     private Runnable dirtyListener;
     private boolean dirty;
+    private boolean bootstrapInitialized;
 
     public PlayerOrganHolder(Entity owner) {
         this.owner = owner;
@@ -34,7 +36,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public int getCapacity(ResourceLocation bodyPartId) {
+    public int getCapacity(@NotNull ResourceLocation bodyPartId) {
         Optional<BodyPartDefinition> definition = BodyPlanResolver.getBodyPart(owner, bodyPartId);
         int capacity = Math.max(0, definition.map(BodyPartDefinition::defaultCapacity).orElse(0) + getState(bodyPartId).bonusCapacity);
         Integer maxCapacity = definition.map(BodyPartDefinition::maxCapacity).orElse(null);
@@ -42,7 +44,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public int getUsedCapacity(ResourceLocation bodyPartId) {
+    public int getUsedCapacity(@NotNull ResourceLocation bodyPartId) {
         BodyPartState state = getState(bodyPartId);
         int used = 0;
         for (ItemStack stack : state.organs) {
@@ -54,18 +56,18 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public int getFreeCapacity(ResourceLocation bodyPartId) {
+    public int getFreeCapacity(@NotNull ResourceLocation bodyPartId) {
         return Math.max(0, getCapacity(bodyPartId) - getUsedCapacity(bodyPartId));
     }
 
     @Override
-    public List<ItemStack> getInstalledOrgans(ResourceLocation bodyPartId) {
+    public @NotNull List<ItemStack> getInstalledOrgans(@NotNull ResourceLocation bodyPartId) {
         ensureSlotCount(bodyPartId);
         return List.copyOf(getState(bodyPartId).organs);
     }
 
     @Override
-    public OrganInstallResult install(ResourceLocation bodyPartId, ItemStack stack) {
+    public @NotNull OrganInstallResult install(@NotNull ResourceLocation bodyPartId, @NotNull ItemStack stack) {
         ensureSlotCount(bodyPartId);
         BodyPartState state = getState(bodyPartId);
         for (int i = 0; i < state.organs.size(); i++) {
@@ -77,7 +79,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public ItemStack removeOrgan(ResourceLocation bodyPartId, int slotIndex) {
+    public @NotNull ItemStack removeOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex) {
         ensureSlotCount(bodyPartId);
         BodyPartState state = getState(bodyPartId);
         if (slotIndex < 0 || slotIndex >= state.organs.size()) {
@@ -92,7 +94,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public ItemStack getOrgan(ResourceLocation bodyPartId, int slotIndex) {
+    public @NotNull ItemStack getOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex) {
         ensureSlotCount(bodyPartId);
         BodyPartState state = getState(bodyPartId);
         if (slotIndex < 0 || slotIndex >= state.organs.size()) {
@@ -102,22 +104,22 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public void setOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack) {
+    public void setOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex, @NotNull ItemStack stack) {
         trySetOrgan(bodyPartId, slotIndex, stack, false);
     }
 
     @Override
-    public OrganInstallResult trySetOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack) {
+    public @NotNull OrganInstallResult trySetOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex, @NotNull ItemStack stack) {
         return trySetOrgan(bodyPartId, slotIndex, stack, false);
     }
 
     @Override
-    public int getBonusCapacity(ResourceLocation bodyPartId) {
+    public int getBonusCapacity(@NotNull ResourceLocation bodyPartId) {
         return getState(bodyPartId).bonusCapacity;
     }
 
     @Override
-    public boolean addBonusCapacity(ResourceLocation bodyPartId, int amount) {
+    public boolean addBonusCapacity(@NotNull ResourceLocation bodyPartId, int amount) {
         if (BodyPlanResolver.getBodyPart(owner, bodyPartId).isEmpty()) {
             return false;
         }
@@ -129,7 +131,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
-    public void copyFrom(IOrganHolder other) {
+    public void copyFrom(@NotNull IOrganHolder other) {
         bodyParts.clear();
         for (ResourceLocation id : BodyPlanResolver.getOrderedBodyPartIds(owner)) {
             BodyPartState state = getState(id);
@@ -163,8 +165,19 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     }
 
     @Override
+    public boolean isBootstrapInitialized() {
+        return bootstrapInitialized;
+    }
+
+    @Override
+    public void setBootstrapInitialized(boolean initialized) {
+        bootstrapInitialized = initialized;
+    }
+
+    @Override
     public CompoundTag serializeNBT() {
         CompoundTag root = new CompoundTag();
+        root.putBoolean(BOOTSTRAP_INITIALIZED_TAG, bootstrapInitialized);
         CompoundTag bodyPartsTag = new CompoundTag();
         for (Map.Entry<ResourceLocation, BodyPartState> entry : bodyParts.entrySet()) {
             CompoundTag partTag = new CompoundTag();
@@ -185,6 +198,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
     @Override
     public void deserializeNBT(CompoundTag nbt) {
         bodyParts.clear();
+        bootstrapInitialized = nbt.getBoolean(BOOTSTRAP_INITIALIZED_TAG);
         CompoundTag bodyPartsTag = nbt.getCompound("body_parts");
         for (String key : bodyPartsTag.getAllKeys()) {
             ResourceLocation id = ResourceLocation.parse(key);
@@ -201,7 +215,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         dirty = false;
     }
 
-    private OrganInstallResult trySetOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack, boolean consumeStack) {
+    private @NotNull OrganInstallResult trySetOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex, @NotNull ItemStack stack, boolean consumeStack) {
         Optional<BodyPartDefinition> bodyPart = BodyPlanResolver.getBodyPart(owner, bodyPartId);
         if (bodyPart.isEmpty()) {
             return OrganInstallResult.fail(Component.translatable("message.organapi.unknown_body_part"));
@@ -240,11 +254,11 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         return OrganInstallResult.success(Component.translatable(previous.isEmpty() ? "message.organapi.installed" : "message.organapi.replaced"));
     }
 
-    private BodyPartState getState(ResourceLocation bodyPartId) {
+    private BodyPartState getState(@NotNull ResourceLocation bodyPartId) {
         return bodyParts.computeIfAbsent(bodyPartId, key -> new BodyPartState());
     }
 
-    private void ensureSlotCount(ResourceLocation bodyPartId) {
+    private void ensureSlotCount(@NotNull ResourceLocation bodyPartId) {
         BodyPartState state = getState(bodyPartId);
         int target = Math.max(getCapacity(bodyPartId), state.organs.size());
         while (state.organs.size() < target) {
@@ -252,7 +266,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         }
     }
 
-    private int getSize(ItemStack stack) {
+    private int getSize(@NotNull ItemStack stack) {
         return OrganRegistryAccess.getOrgan(stack).map(OrganDefinition::size).orElse(1);
     }
 

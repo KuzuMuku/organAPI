@@ -1,37 +1,41 @@
 package cn.kuzuanpa.organapi.common.capability;
 
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
+import cn.kuzuanpa.organapi.api.extension.OrganBootstrapApi;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
 
 public interface IOrganHolder {
-    int getCapacity(ResourceLocation bodyPartId);
+    String BOOTSTRAP_INITIALIZED_TAG = "bootstrap_initialized";
 
-    int getUsedCapacity(ResourceLocation bodyPartId);
+    int getCapacity(@NotNull ResourceLocation bodyPartId);
 
-    int getFreeCapacity(ResourceLocation bodyPartId);
+    int getUsedCapacity(@NotNull ResourceLocation bodyPartId);
 
-    List<ItemStack> getInstalledOrgans(ResourceLocation bodyPartId);
+    int getFreeCapacity(@NotNull ResourceLocation bodyPartId);
 
-    OrganInstallResult install(ResourceLocation bodyPartId, ItemStack stack);
+    @NotNull List<ItemStack> getInstalledOrgans(@NotNull ResourceLocation bodyPartId);
 
-    ItemStack removeOrgan(ResourceLocation bodyPartId, int slotIndex);
+    @NotNull OrganInstallResult install(@NotNull ResourceLocation bodyPartId, @NotNull ItemStack stack);
 
-    ItemStack getOrgan(ResourceLocation bodyPartId, int slotIndex);
+    @NotNull ItemStack removeOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex);
 
-    void setOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack);
+    @NotNull ItemStack getOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex);
 
-    OrganInstallResult trySetOrgan(ResourceLocation bodyPartId, int slotIndex, ItemStack stack);
+    void setOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex, @NotNull ItemStack stack);
 
-    int getBonusCapacity(ResourceLocation bodyPartId);
+    @NotNull OrganInstallResult trySetOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex, @NotNull ItemStack stack);
 
-    boolean addBonusCapacity(ResourceLocation bodyPartId, int amount);
+    int getBonusCapacity(@NotNull ResourceLocation bodyPartId);
 
-    void copyFrom(IOrganHolder other);
+    boolean addBonusCapacity(@NotNull ResourceLocation bodyPartId, int amount);
+
+    void copyFrom(@NotNull IOrganHolder other);
 
     void markDirty();
 
@@ -39,11 +43,30 @@ public interface IOrganHolder {
 
     void clearDirty();
 
-    static LazyOptional<IOrganHolder> get(Entity entity) {
-        return entity.getCapability(OrganCapabilities.ORGAN_HOLDER);
+    /**
+     * Returns whether this entity's organ state has already been bootstrapped.
+     * Bootstrap is the one-time initialization that assigns the entity's organs
+     * when its organ holder is first accessed for actual gameplay use, such as
+     * opening the organ UI. Once bootstrapped, the organs belong to the entity
+     * for the rest of its lifetime and must not be regenerated just because the
+     * holder was reloaded from NBT.
+     */
+    boolean isBootstrapInitialized();
+
+    /**
+     * Marks whether this entity's organ state has completed its one-time
+     * bootstrap initialization. This flag is part of the holder's persisted
+     * state so reloading from NBT does not cause bootstrap to run again.
+     */
+    void setBootstrapInitialized(boolean initialized);
+
+    static @NotNull LazyOptional<IOrganHolder> get(@NotNull Entity entity) {
+        LazyOptional<IOrganHolder> optional = entity.getCapability(OrganCapabilities.ORGAN_HOLDER);
+        optional.ifPresent(holder -> OrganBootstrapApi.bootstrap(entity, holder));
+        return optional;
     }
 
-    static Optional<IOrganHolder> resolve(Entity entity) {
+    static @NotNull Optional<IOrganHolder> resolve(@NotNull Entity entity) {
         return get(entity).resolve();
     }
 }
