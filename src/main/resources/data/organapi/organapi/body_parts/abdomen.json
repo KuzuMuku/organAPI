@@ -1,6 +1,6 @@
 {
   "translation_key": "body_part.organapi.abdomen",
-  "default_capacity": 3,
+  "default_capacity": 4,
   "max_capacity": 32,
   "sort_order": 2,
   "visual_width_ratio": 1.0,

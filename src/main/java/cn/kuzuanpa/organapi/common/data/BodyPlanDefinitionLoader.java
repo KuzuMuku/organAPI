@@ -91,7 +91,7 @@ public class BodyPlanDefinitionLoader extends SimplePreparableReloadListener<Map
             String translationKey = partJson.has("translation_key") ? GsonHelper.getAsString(partJson, "translation_key") : null;
             Integer capacity = partJson.has("capacity")
                     ? GsonHelper.getAsInt(partJson, "capacity")
-                    : (partJson.has("default_capacity") ? GsonHelper.getAsInt(partJson, "default_capacity") : null);
+                    : (partJson.has("default_capacity") ? GsonHelper.getAsInt(partJson, "default_capacity") : 0);
             Integer maxCapacity = partJson.has("max_capacity") ? GsonHelper.getAsInt(partJson, "max_capacity") : null;
             Integer sortOrder = partJson.has("sort_order") ? GsonHelper.getAsInt(partJson, "sort_order") : null;
             List<TagKey<Item>> acceptedTags = partJson.has("accepted_tags")
