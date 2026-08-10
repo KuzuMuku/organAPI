@@ -103,7 +103,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
                 SUBTITLE_COLOR,
                 false);
         graphics.drawString(font,
-                Component.literal("Click a body part to open"),
+                Component.translatable("menu.organapi.body_part_hint"),
                 INFO_PANEL_X + 10,
                 INFO_PANEL_Y + 46,
                 MUTED_LABEL_COLOR,

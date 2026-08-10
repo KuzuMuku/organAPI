@@ -2,6 +2,6 @@
   "item": "organapi:sample_brain",
   "valid_parts": ["organapi:head"],
   "size": 1,
-  "tooltips": ["Sample neural organ used to demonstrate the API."],
+  "tooltips": ["lang:tooltip.organapi.sample_brain"],
   "tags": ["neural", "sample"]
 }

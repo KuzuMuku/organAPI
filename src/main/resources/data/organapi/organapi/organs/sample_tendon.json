@@ -2,6 +2,6 @@
   "item": "organapi:sample_tendon",
   "valid_parts": ["organapi:left_arm", "organapi:right_arm"],
   "size": 1,
-  "tooltips": ["Sample tendon organ for arm slots."],
+  "tooltips": ["lang:tooltip.organapi.sample_tendon"],
   "tags": ["arm", "sample"]
 }

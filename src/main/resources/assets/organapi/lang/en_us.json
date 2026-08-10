@@ -23,6 +23,7 @@
   "item.organapi.right_leg_expansion_kit": "Right Leg Expansion Kit",
   "menu.organapi.organ_menu": "Organ Editor",
   "menu.organapi.body_part_selection": "Select Body Part",
+  "menu.organapi.body_part_hint": "Click a body part to open",
   "menu.organapi.organ_overview": "Surgery Overview",
   "menu.organapi.overview.editor": "Selected Body Part",
   "menu.organapi.capacity": "Used %s / Total %s",
@@ -39,5 +40,10 @@
   "message.organapi.removed": "Organ removed.",
   "message.organapi.replaced": "Organ replaced.",
   "message.organapi.no_slaughter_target": "No living target is standing on the slaughter room.",
-  "message.organapi.target_too_healthy": "Target must be below 30% health."
+  "message.organapi.target_too_healthy": "Target must be below 30% health.",
+  "tooltip.organapi.sample_brain": "Sample neural organ used to demonstrate the API.",
+  "tooltip.organapi.sample_heart": "Sample heart organ for chest capacity tests.",
+  "tooltip.organapi.sample_lung": "Sample lung organ for chest slot validation.",
+  "tooltip.organapi.sample_tendon": "Sample tendon organ for arm slots.",
+  "tooltip.organapi.sample_leg_muscle": "Sample muscle organ for leg slots."
 }

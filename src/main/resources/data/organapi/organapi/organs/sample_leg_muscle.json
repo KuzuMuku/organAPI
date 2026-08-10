@@ -2,6 +2,6 @@
   "item": "organapi:sample_leg_muscle",
   "valid_parts": ["organapi:left_leg", "organapi:right_leg"],
   "size": 1,
-  "tooltips": ["Sample muscle organ for leg slots."],
+  "tooltips": ["lang:tooltip.organapi.sample_leg_muscle"],
   "tags": ["leg", "sample"]
 }
