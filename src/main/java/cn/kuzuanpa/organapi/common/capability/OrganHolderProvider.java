@@ -16,6 +16,7 @@
 package cn.kuzuanpa.organapi.common.capability;
 
 import cn.kuzuanpa.organapi.OrganApiMod;
+import cn.kuzuanpa.organapi.common.util.OrganJsonStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -32,13 +33,14 @@ public class OrganHolderProvider implements ICapabilitySerializable<CompoundTag>
     private final Entity owner;
     private final PlayerOrganHolder organHolder;
     private final LazyOptional<IOrganHolder> optional;
+    private boolean loadedFromJson;
 
     public OrganHolderProvider(Entity owner) {
         this.owner = owner;
         this.organHolder = new PlayerOrganHolder(owner);
-        this.organHolder.setDirtyListener(this::saveToOwner);
+        this.organHolder.setDirtyListener(this::saveToJson);
         this.optional = LazyOptional.of(() -> organHolder);
-        loadFromOwner();
+        loadFromJson();
     }
 
     @Override
@@ -48,29 +50,44 @@ public class OrganHolderProvider implements ICapabilitySerializable<CompoundTag>
 
     @Override
     public CompoundTag serializeNBT() {
-        CompoundTag tag = organHolder.serializeNBT();
-        saveToOwner(tag);
-        return tag;
+        saveToJson();
+        return new CompoundTag();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        organHolder.deserializeNBT(nbt);
-        saveToOwner(nbt);
-    }
-
-    private void loadFromOwner() {
-        CompoundTag persistentData = owner.getPersistentData();
-        if (persistentData.contains(PERSISTENT_DATA_KEY)) {
-            organHolder.deserializeNBT(persistentData.getCompound(PERSISTENT_DATA_KEY));
+        if (nbt != null && !nbt.isEmpty()) {
+            if (!loadedFromJson) {
+                organHolder.deserializeNBT(nbt);
+                saveToJson();
+                loadedFromJson = true;
+            }
+            return;
+        }
+        if (!loadedFromJson) {
+            loadFromJson();
         }
     }
 
-    private void saveToOwner() {
-        saveToOwner(organHolder.serializeNBT());
+    private void loadFromJson() {
+        CompoundTag saved = OrganJsonStorage.load(owner, "organapi");
+        if (!saved.isEmpty()) {
+            organHolder.deserializeNBT(saved);
+            owner.getPersistentData().remove(PERSISTENT_DATA_KEY);
+            loadedFromJson = true;
+            return;
+        }
+        CompoundTag legacy = owner.getPersistentData().getCompound(PERSISTENT_DATA_KEY);
+        if (!legacy.isEmpty()) {
+            organHolder.deserializeNBT(legacy);
+            saveToJson();
+            loadedFromJson = true;
+        }
     }
 
-    private void saveToOwner(CompoundTag tag) {
-        owner.getPersistentData().put(PERSISTENT_DATA_KEY, tag.copy());
+    private void saveToJson() {
+        if (OrganJsonStorage.save(owner, "organapi", organHolder.serializeNBT())) {
+            owner.getPersistentData().remove(PERSISTENT_DATA_KEY);
+        }
     }
 }
