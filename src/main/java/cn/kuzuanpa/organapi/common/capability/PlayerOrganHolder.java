@@ -36,6 +36,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<CompoundTag> {
+    private static final String ORGAN_SLOT_TAG = "slot";
     private final Entity owner;
     private final Map<ResourceLocation, BodyPartState> bodyParts = new HashMap<>();
     private Runnable dirtyListener;
@@ -195,11 +196,18 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         root.putBoolean(BOOTSTRAP_INITIALIZED_TAG, bootstrapInitialized);
         CompoundTag bodyPartsTag = new CompoundTag();
         for (Map.Entry<ResourceLocation, BodyPartState> entry : bodyParts.entrySet()) {
+            BodyPartState state = entry.getValue();
             CompoundTag partTag = new CompoundTag();
-            partTag.putInt("bonus_capacity", entry.getValue().bonusCapacity);
+            partTag.putInt("bonus_capacity", state.bonusCapacity);
             ListTag organsTag = new ListTag();
-            for (ItemStack stack : entry.getValue().organs) {
+            int capacity = getCapacity(entry.getKey());
+            for (int slot = 0; slot < capacity && slot < state.organs.size(); slot++) {
+                ItemStack stack = state.organs.get(slot);
+                if (stack.isEmpty()) {
+                    continue;
+                }
                 CompoundTag organTag = new CompoundTag();
+                organTag.putInt(ORGAN_SLOT_TAG, slot);
                 stack.save(organTag);
                 organsTag.add(organTag);
             }
@@ -222,8 +230,21 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
             state.bonusCapacity = partTag.getInt("bonus_capacity");
             ListTag organsTag = partTag.getList("organs", Tag.TAG_COMPOUND);
             state.organs.clear();
+            int capacity = getCapacity(id);
+            int legacySlot = 0;
             for (int i = 0; i < organsTag.size(); i++) {
-                state.organs.add(ItemStack.of(organsTag.getCompound(i)));
+                CompoundTag organTag = organsTag.getCompound(i);
+                int slot = organTag.contains(ORGAN_SLOT_TAG) ? organTag.getInt(ORGAN_SLOT_TAG) : legacySlot++;
+                if (slot < 0 || slot >= capacity) {
+                    continue;
+                }
+                ItemStack stack = ItemStack.of(organTag);
+                if (!stack.isEmpty()) {
+                    while (state.organs.size() <= slot) {
+                        state.organs.add(ItemStack.EMPTY);
+                    }
+                    state.organs.set(slot, stack);
+                }
             }
             ensureSlotCount(id);
         }
@@ -275,9 +296,17 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
 
     private void ensureSlotCount(@NotNull ResourceLocation bodyPartId) {
         BodyPartState state = getState(bodyPartId);
-        int target = Math.max(getCapacity(bodyPartId), state.organs.size());
+        int target = Math.max(0, getCapacity(bodyPartId));
+        boolean changed = false;
+        while (state.organs.size() > target) {
+            state.organs.remove(state.organs.size() - 1);
+            changed = true;
+        }
         while (state.organs.size() < target) {
             state.organs.add(ItemStack.EMPTY);
+        }
+        if (changed) {
+            markDirty();
         }
     }
 

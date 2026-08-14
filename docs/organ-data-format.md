@@ -165,21 +165,37 @@ Forge common config 中的 `slaughter` 分组当前提供以下键：
 
 说明：Minecraft 原生效果 amplifier 语义为 `0 = I 级`，`1 = II 级`，依此类推。屠宰室与便携屠宰器共用同一组配置。
 
-## 持久化结构
+## 持久化文件
 
-实体 Capability 使用类似下面的 NBT：
+器官状态不再直接写入生物实体 NBT，而是按世界和 UUID 保存为独立 JSON：
 
-```nbt
-body_parts: {
-  "organapi:chest": {
-    bonus_capacity: 1,
-    organs: [ ... ]
-  }
+```text
+saves/<世界名>/organAPI/player/<UUID>.json
+saves/<世界名>/organAPI/entity/<UUID>.json
+```
+
+一个 UUID 使用一个共享文件；OrganAPI 写在顶层 `organapi` 字段，OrganEffects 写在顶层 `organeffects` 字段：
+
+```json
+{
+  "format": 1,
+  "organapi": {
+    "body_parts": {
+      "organapi:chest": {
+        "bonus_capacity": 1,
+        "organs": []
+      }
+    }
+  },
+  "organeffects": {}
 }
 ```
 
 其中：
 - `bonus_capacity` 表示该部位的永久扩容值；最终有效容量会被当前实体 body plan 解析出的 `max_capacity` 限制（如果配置了该字段）
-- `organs` 是该部位当前安装的器官物品列表
+- `organs` 是该部位当前安装的非空器官列表；新存档中的每个条目会带 `slot` 字段保留原始槽位，旧存档没有 `slot` 时按列表顺序读取
 - 当前菜单最多暴露 36 个可编辑器官槽，这是 UI 限制，不是全局容量上限
 - 如果旧存档中存在当前 body plan 未启用的部位数据，这些数据会被保留，但不会出现在当前实体的部位列表中
+- 旧存档中的 `organapi.organ_holder` / `organeffects.effect_holder` 实体 NBT 会在加载时自动迁移到 JSON，并清除旧的持久化键
+- 非玩家实体在 OrganAPI bootstrap 完成前，且没有任何 body part 数据时不会写入文件；OrganEffects 也只在存在效果状态时写入
+- 文件只应在服务端写入；客户端没有对应的本地世界路径

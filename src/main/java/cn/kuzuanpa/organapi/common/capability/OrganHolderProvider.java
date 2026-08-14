@@ -21,6 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
@@ -72,10 +73,15 @@ public class OrganHolderProvider implements ICapabilitySerializable<CompoundTag>
     private void loadFromJson() {
         CompoundTag saved = OrganJsonStorage.load(owner, "organapi");
         if (!saved.isEmpty()) {
-            organHolder.deserializeNBT(saved);
-            owner.getPersistentData().remove(PERSISTENT_DATA_KEY);
-            loadedFromJson = true;
-            return;
+            if (hasOrganState(saved)) {
+                organHolder.deserializeNBT(saved);
+                owner.getPersistentData().remove(PERSISTENT_DATA_KEY);
+                loadedFromJson = true;
+                return;
+            }
+            OrganJsonStorage.deleteSection(owner, "organapi");
+        } else if (!(owner instanceof Player)) {
+            OrganJsonStorage.deleteSection(owner, "organapi");
         }
         CompoundTag legacy = owner.getPersistentData().getCompound(PERSISTENT_DATA_KEY);
         if (!legacy.isEmpty()) {
@@ -86,8 +92,17 @@ public class OrganHolderProvider implements ICapabilitySerializable<CompoundTag>
     }
 
     private void saveToJson() {
-        if (OrganJsonStorage.save(owner, "organapi", organHolder.serializeNBT())) {
+        CompoundTag data = organHolder.serializeNBT();
+        if (!hasOrganState(data)) {
+            return;
+        }
+        if (OrganJsonStorage.save(owner, "organapi", data)) {
             owner.getPersistentData().remove(PERSISTENT_DATA_KEY);
         }
+    }
+
+    private boolean hasOrganState(CompoundTag data) {
+        return owner instanceof Player
+                || data.getBoolean(IOrganHolder.BOOTSTRAP_INITIALIZED_TAG);
     }
 }

@@ -111,6 +111,44 @@ public final class OrganJsonStorage {
         }
     }
 
+    /**
+     * Removes one module section from the per-UUID organ save file.
+     * Returns true when the section was removed or the file was deleted.
+     */
+    public static boolean deleteSection(Entity owner, String section) {
+        synchronized (FILE_LOCK) {
+            Path path = pathFor(owner);
+            if (path == null || !Files.isRegularFile(path)) {
+                return false;
+            }
+            try {
+                JsonElement existing = JsonParser.parseString(Files.readString(path, StandardCharsets.UTF_8));
+                if (!(existing instanceof JsonObject root) || !root.has(section)) {
+                    return false;
+                }
+                root.remove(section);
+                if (root.size() <= 1) {
+                    Files.deleteIfExists(path);
+                    Files.deleteIfExists(path.resolveSibling(path.getFileName() + ".tmp"));
+                    return true;
+                }
+                root.addProperty("format", FORMAT);
+                Path temporary = path.resolveSibling(path.getFileName() + ".tmp");
+                Files.writeString(temporary, GSON.toJson(root), StandardCharsets.UTF_8);
+                try {
+                    Files.move(temporary, path, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException exception) {
+                    Files.deleteIfExists(temporary);
+                    throw exception;
+                }
+                return true;
+            } catch (Exception exception) {
+                LOGGER.error("Failed to remove organ JSON section {} from {}: {}", section, path, exception.toString());
+                return false;
+            }
+        }
+    }
+
     private static Path pathFor(Entity owner) {
         MinecraftServer server = owner.getServer();
         if (server == null) {

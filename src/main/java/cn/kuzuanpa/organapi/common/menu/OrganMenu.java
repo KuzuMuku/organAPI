@@ -249,10 +249,12 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
                 if (!targetSlot.hasItem() && targetSlot.mayPlace(stack)) {
                     ItemStack single = stack.copyWithCount(1);
                     targetSlot.set(single);
-                    targetSlot.setChanged();
-                    stack.shrink(1);
-                    moved = true;
-                    break;
+                    if (targetSlot.hasItem()) {
+                        targetSlot.setChanged();
+                        stack.shrink(1);
+                        moved = true;
+                        break;
+                    }
                 }
             }
             if (!moved) {

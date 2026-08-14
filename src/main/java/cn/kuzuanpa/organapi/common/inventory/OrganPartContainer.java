@@ -15,8 +15,12 @@
 
 package cn.kuzuanpa.organapi.common.inventory;
 
+import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
+import cn.kuzuanpa.organapi.api.organ.OrganDefinition;
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
+import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
 import java.util.Optional;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -46,6 +50,20 @@ public class OrganPartContainer implements Container {
     @Override
     public int getContainerSize() {
         return getHolder().map(holder -> holder.getCapacity(bodyPartId)).orElse(0);
+    }
+
+    public boolean canSetItem(int slot, ItemStack stack) {
+        Optional<IOrganHolder> holder = getHolder();
+        if (holder.isEmpty()) {
+            return false;
+        }
+        if (stack.isEmpty()) {
+            return true;
+        }
+        IOrganHolder organHolder = holder.get();
+        ItemStack previous = organHolder.getOrgan(bodyPartId, slot);
+        int usedWithoutPrevious = organHolder.getUsedCapacity(bodyPartId) - getSize(previous);
+        return usedWithoutPrevious + getSize(stack) <= organHolder.getCapacity(bodyPartId);
     }
 
     @Override
@@ -80,8 +98,9 @@ public class OrganPartContainer implements Container {
     @Override
     public void setItem(int slot, ItemStack stack) {
         ItemStack stored = stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
-        getHolder().ifPresent(holder -> holder.setOrgan(bodyPartId, slot, stored));
-    }
+         getHolder().map(holder -> holder.trySetOrgan(bodyPartId, slot, stored))
+                .orElseGet(() -> OrganInstallResult.fail(Component.translatable("message.organapi.no_holder")));
+        }
 
     @Override
     public void setChanged() {
@@ -102,5 +121,9 @@ public class OrganPartContainer implements Container {
 
     private Optional<IOrganHolder> getHolder() {
         return IOrganHolder.resolve(target);
+    }
+
+    private static int getSize(ItemStack stack) {
+        return OrganRegistryAccess.getOrgan(stack).map(OrganDefinition::size).orElse(1);
     }
 }

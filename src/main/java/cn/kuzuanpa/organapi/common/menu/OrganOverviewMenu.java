@@ -15,6 +15,7 @@
 
 package cn.kuzuanpa.organapi.common.menu;
 
+import cn.kuzuanpa.organapi.api.event.OrganStateCommittedEvent;
 import cn.kuzuanpa.organapi.api.query.BodyPartOverview;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
@@ -35,6 +36,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
 public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlotContext, SelectableBodyPartMenu {
@@ -194,8 +196,7 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
         boolean wasDirty = player instanceof ServerPlayer
                 && IOrganHolder.resolve(target).map(IOrganHolder::isDirty).orElse(false);
         syncOrganDataIfDirty();
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                new cn.kuzuanpa.organapi.api.event.OrganStateCommittedEvent(player, target, "organ_overview", wasDirty));
+        MinecraftForge.EVENT_BUS.post(new OrganStateCommittedEvent(player, target, "organ_overview", wasDirty));
     }
 
     private void syncOrganDataIfDirty() {
@@ -235,10 +236,12 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
                 if (!targetSlot.hasItem() && targetSlot.mayPlace(stack)) {
                     ItemStack single = stack.copyWithCount(1);
                     targetSlot.set(single);
-                    targetSlot.setChanged();
-                    stack.shrink(1);
-                    moved = true;
-                    break;
+                    if (targetSlot.hasItem()) {
+                        targetSlot.setChanged();
+                        stack.shrink(1);
+                        moved = true;
+                        break;
+                    }
                 }
             }
             if (!moved) {
