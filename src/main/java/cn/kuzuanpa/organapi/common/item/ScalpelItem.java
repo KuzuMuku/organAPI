@@ -20,7 +20,9 @@ import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import java.util.List;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -29,7 +31,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ScalpelItem extends Item {
     private static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("0d8d11c5-fb6a-4a6b-ae2c-5b59e12f0aa1");
@@ -49,6 +54,12 @@ public class ScalpelItem extends Item {
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
         return slot == EquipmentSlot.MAINHAND ? defaultModifiers : super.getAttributeModifiers(slot, stack);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("tooltip.organapi.scalpel"));
     }
 
     @Override

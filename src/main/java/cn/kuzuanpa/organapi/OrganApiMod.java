@@ -23,6 +23,7 @@ import cn.kuzuanpa.organapi.common.data.OrganDefinitionLoader;
 import cn.kuzuanpa.organapi.common.event.CommonForgeEvents;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
 import cn.kuzuanpa.organapi.common.registry.OrganBlocks;
+import cn.kuzuanpa.organapi.common.registry.OrganCreativeTabs;
 import cn.kuzuanpa.organapi.common.registry.OrganItems;
 import cn.kuzuanpa.organapi.common.registry.OrganMenus;
 import net.minecraftforge.common.MinecraftForge;
@@ -44,6 +45,7 @@ public class OrganApiMod {
         context.registerConfig(ModConfig.Type.COMMON, OrganApiConfig.COMMON_SPEC);
         OrganItems.ITEMS.register(modBus);
         OrganBlocks.BLOCKS.register(modBus);
+        OrganCreativeTabs.TABS.register(modBus);
         OrganMenus.MENU_TYPES.register(modBus);
         modBus.addListener(this::onClientSetup);
 
