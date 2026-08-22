@@ -16,6 +16,7 @@
 package cn.kuzuanpa.organapi.common.item;
 
 import cn.kuzuanpa.organapi.common.menu.BodyPartSelectionMenu;
+import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -24,13 +25,21 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class OrganPouchItem extends Item {
     public OrganPouchItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("tooltip.organapi.open_body_part_screen"));
     }
 
     @Override

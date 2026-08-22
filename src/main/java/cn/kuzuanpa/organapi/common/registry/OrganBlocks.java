@@ -18,15 +18,21 @@ package cn.kuzuanpa.organapi.common.registry;
 import cn.kuzuanpa.organapi.OrganApiMod;
 import cn.kuzuanpa.organapi.common.block.SlaughterRoomBlock;
 import cn.kuzuanpa.organapi.common.block.SurgeryRoomBlock;
+import java.util.List;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 public final class OrganBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, OrganApiMod.MOD_ID);
@@ -46,9 +52,21 @@ public final class OrganBlocks {
                     .requiresCorrectToolForDrops()));
 
     public static final RegistryObject<Item> SURGERY_ROOM_ITEM = OrganItems.ITEMS.register("surgery_room",
-            () -> new BlockItem(SURGERY_ROOM.get(), new Item.Properties()));
+            () -> new BlockItem(SURGERY_ROOM.get(), new Item.Properties()) {
+                @Override
+                public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+                    super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+                    tooltipComponents.add(Component.translatable("tooltip.organapi.surgery_room"));
+                }
+            });
     public static final RegistryObject<Item> SLAUGHTER_ROOM_ITEM = OrganItems.ITEMS.register("slaughter_room",
-            () -> new BlockItem(SLAUGHTER_ROOM.get(), new Item.Properties()));
+            () -> new BlockItem(SLAUGHTER_ROOM.get(), new Item.Properties()) {
+                @Override
+                public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+                    super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+                    tooltipComponents.add(Component.translatable("tooltip.organapi.slaughter_room"));
+                }
+            });
 
     private OrganBlocks() {
     }

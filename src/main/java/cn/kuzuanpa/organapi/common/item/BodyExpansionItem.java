@@ -19,6 +19,7 @@ import cn.kuzuanpa.organapi.api.OrganApi;
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,8 +29,10 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BodyExpansionItem extends Item {
     private final ResourceLocation bodyPartId;
@@ -39,6 +42,13 @@ public class BodyExpansionItem extends Item {
         super(properties);
         this.bodyPartId = bodyPartId;
         this.amount = amount;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("tooltip.organapi.body_expansion_kit", amount,
+                Component.translatable("body_part." + bodyPartId.getNamespace() + "." + bodyPartId.getPath())));
     }
 
     @Override

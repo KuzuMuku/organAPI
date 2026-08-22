@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "minecraft:item/stick"
+    "layer0": "organapi:item/debug_heart_injector"
   }
 }
