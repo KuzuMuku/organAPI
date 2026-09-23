@@ -1,4 +1,5 @@
 {
+  "organapi.packs.description": "organAPI 器官包",
   "body_part.organapi.head": "头部",
   "body_part.organapi.chest": "胸腔",
   "body_part.organapi.abdomen": "腹部",

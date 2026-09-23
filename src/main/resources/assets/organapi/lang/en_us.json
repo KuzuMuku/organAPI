@@ -1,4 +1,5 @@
 {
+  "organapi.packs.description": "organAPI Packs",
   "body_part.organapi.head": "Head",
   "body_part.organapi.chest": "Chest",
   "body_part.organapi.abdomen": "Abdomen",

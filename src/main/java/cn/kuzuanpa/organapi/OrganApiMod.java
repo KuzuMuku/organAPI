@@ -20,6 +20,8 @@ import cn.kuzuanpa.organapi.common.config.OrganApiConfig;
 import cn.kuzuanpa.organapi.common.data.BodyPartDefinitionLoader;
 import cn.kuzuanpa.organapi.common.data.BodyPlanDefinitionLoader;
 import cn.kuzuanpa.organapi.common.data.OrganDefinitionLoader;
+import cn.kuzuanpa.organapi.common.data.pack.OrganPackLoader;
+import cn.kuzuanpa.organapi.common.data.pack.OrganPackTemplateExtractor;
 import cn.kuzuanpa.organapi.common.event.CommonForgeEvents;
 import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
 import cn.kuzuanpa.organapi.common.registry.OrganBlocks;
@@ -27,6 +29,7 @@ import cn.kuzuanpa.organapi.common.registry.OrganCreativeTabs;
 import cn.kuzuanpa.organapi.common.registry.OrganItems;
 import cn.kuzuanpa.organapi.common.registry.OrganMenus;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -42,12 +45,15 @@ public class OrganApiMod {
     public OrganApiMod(FMLJavaModLoadingContext context) {
         IEventBus modBus = context.getModEventBus();
 
+        OrganPackTemplateExtractor.extractDefaultsIfAbsent();
+
         context.registerConfig(ModConfig.Type.COMMON, OrganApiConfig.COMMON_SPEC);
         OrganItems.ITEMS.register(modBus);
         OrganBlocks.BLOCKS.register(modBus);
         OrganCreativeTabs.TABS.register(modBus);
         OrganMenus.MENU_TYPES.register(modBus);
         modBus.addListener(this::onClientSetup);
+        modBus.addListener(this::onAddPackFinders);
 
         OrganApiNetwork.register();
         MinecraftForge.EVENT_BUS.register(new CommonForgeEvents());
@@ -56,6 +62,10 @@ public class OrganApiMod {
 
     private void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(ClientSetup::registerScreens);
+    }
+
+    private void onAddPackFinders(AddPackFindersEvent event) {
+        event.addRepositorySource(new OrganPackLoader(event.getPackType()));
     }
 
     private void onAddReloadListeners(AddReloadListenerEvent event) {

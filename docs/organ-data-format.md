@@ -199,3 +199,41 @@ saves/<世界名>/organAPI/entity/<UUID>.json
 - 旧存档中的 `organapi.organ_holder` / `organeffects.effect_holder` 实体 NBT 会在加载时自动迁移到 JSON，并清除旧的持久化键
 - 非玩家实体在 OrganAPI bootstrap 完成前，且没有任何 body part 数据时不会写入文件；OrganEffects 也只在存在效果状态时写入
 - 文件只应在服务端写入；客户端没有对应的本地世界路径
+
+## 自定义包目录布局（游戏运行目录）
+
+从本版本起，器官定义不再只从 mod 内置 datapack 读取，而是改为 **tacz 式自定义包**：organAPI 在游戏运行目录下扫描外部包并注入资源系统。这样无需重新打包 mod 即可增删器官/部位/body_plan 定义与其贴图模型。
+
+目录约定（`<游戏目录>` 通常是 `.minecraft` 或开发环境的 `run/`）：
+
+```text
+<游戏目录>/organs/
+  data/<pack名>/          服务端数据侧，走 PackType.SERVER_DATA（datapack 自带 server→client 同步）
+    data/<ns>/organapi/organs/<id>.json
+    data/<ns>/organapi/body_parts/<id>.json
+    data/<ns>/organapi/body_plans/<id>.json
+  resources/<pack名>/      客户端资源侧，走 PackType.CLIENT_RESOURCES（不同步、不校验）
+    assets/<ns>/models/item/<id>.json
+    assets/<ns>/textures/item/<id>.png
+    assets/<ns>/lang/<locale>.json
+```
+
+要点：
+- 每个 `organs/data/` 或 `organs/resources/` 的**直接子目录**就是一个独立子包（sub-pack）。所有子包会被聚合成一个内置包 `organapi_packs`，`Position.BOTTOM` + `PackSource.BUILT_IN` + `alwaysEnabled=true`，无需在世界创建界面手动启用。
+- 子包内部的相对路径与原版 datapack / 资源包完全一致（`data/<ns>/...` 与 `assets/<ns>/...`），`<ns>` 是命名空间（示例包用 `organapi`）。
+- 定义 JSON 的格式与本文档上述各节完全相同；只是加载来源从 mod jar 换成了外部包。
+- 修改 `organs/data/` 下的内容后，游戏内 `/reload` 即可生效，无需重启。
+- 首次启动时若 `organs/data/` 与 `organs/resources/` 不存在会自动创建，并释放一份内置示例包 `organapi_samples`（见下）。
+
+### 内置示例包 organapi_samples
+
+organAPI 首次启动时会把 jar 内置的示例包模板复制到：
+
+```text
+<游戏目录>/organs/data/organapi_samples/       示例器官定义（sample_heart / sample_lung / sample_brain / sample_tendon / sample_leg_muscle）
+<游戏目录>/organs/resources/organapi_samples/   对应的物品模型与贴图
+```
+
+复制仅在目标目录不存在时进行，因此不会覆盖你的修改；想恢复默认删除该目录再启动即可。模板在 jar 内位于 `pack_templates/data/organapi_samples/` 与 `pack_templates/resources/organapi_samples/`（这两个根不在 `data/`/`assets/` 下，因此原版不会自动加载，仅作复制源）。
+
+可把 `organapi_samples` 当作编写新包的参照：复制一份、改名、替换其中的 json/贴图即可得到一个新子包。
