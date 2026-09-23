@@ -19,33 +19,61 @@ import java.util.Objects;
 
 /**
  * Holds the loader-specific implementations of the platform interfaces, injected
- * once by the loader entrypoint ({@code OrganApiMod} on Forge). Common code
- * reaches MC-coupled behavior only through here, keeping the coupling behind the
- * {@code platform-api} boundary.
+ * once by the loader entrypoint ({@code OrganApiForge} on Forge,
+ * {@code OrganApiNeoForge} on NeoForge). Common code reaches MC-coupled behavior
+ * only through here, keeping the coupling behind the {@code platform-api}
+ * boundary.
  */
 public final class Platform {
     private static OrganStorage storage;
     private static OrganNetwork network;
+    private static OrganItemCodec itemCodec;
+    private static OrganMenuAccess menus;
+    private static OrganEvents events;
 
     private Platform() {
     }
 
-    public static void install(OrganStorage storageImpl, OrganNetwork networkImpl) {
+    /**
+     * Installs all platform seams. Called once by the loader entrypoint before any
+     * common code touches {@link Platform}.
+     */
+    public static void install(OrganStorage storageImpl,
+                               OrganNetwork networkImpl,
+                               OrganItemCodec itemCodecImpl,
+                               OrganMenuAccess menusImpl,
+                               OrganEvents eventsImpl) {
         storage = Objects.requireNonNull(storageImpl, "storage");
         network = Objects.requireNonNull(networkImpl, "network");
+        itemCodec = Objects.requireNonNull(itemCodecImpl, "itemCodec");
+        menus = Objects.requireNonNull(menusImpl, "menus");
+        events = Objects.requireNonNull(eventsImpl, "events");
     }
 
     public static OrganStorage storage() {
-        if (storage == null) {
-            throw new IllegalStateException("OrganStorage platform implementation not installed");
-        }
-        return storage;
+        return require(storage, "OrganStorage");
     }
 
     public static OrganNetwork network() {
-        if (network == null) {
-            throw new IllegalStateException("OrganNetwork platform implementation not installed");
+        return require(network, "OrganNetwork");
+    }
+
+    public static OrganItemCodec itemCodec() {
+        return require(itemCodec, "OrganItemCodec");
+    }
+
+    public static OrganMenuAccess menus() {
+        return require(menus, "OrganMenuAccess");
+    }
+
+    public static OrganEvents events() {
+        return require(events, "OrganEvents");
+    }
+
+    private static <T> T require(T value, String name) {
+        if (value == null) {
+            throw new IllegalStateException(name + " platform implementation not installed");
         }
-        return network;
+        return value;
     }
 }

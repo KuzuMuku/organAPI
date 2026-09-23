@@ -39,8 +39,13 @@ public class OrganItem extends Item {
     }
 
     @Override
+    //? if forge {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+    //?} else {
+    /*public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    *///?}
         OrganRegistryAccess.getOrgan(stack).ifPresent(definition -> definition.tooltips().stream()
                 .map(OrganItem::tooltipComponent)
                 .forEach(tooltipComponents::add));

@@ -36,7 +36,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
 public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlotContext, SelectableBodyPartMenu {
@@ -196,7 +195,7 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
         boolean wasDirty = player instanceof ServerPlayer
                 && IOrganHolder.resolve(target).map(IOrganHolder::isDirty).orElse(false);
         syncOrganDataIfDirty();
-        MinecraftForge.EVENT_BUS.post(new OrganStateCommittedEvent(player, target, "organ_overview", wasDirty));
+        Platform.events().postStateCommitted(new OrganStateCommittedEvent(player, target, "organ_overview", wasDirty));
     }
 
     private void syncOrganDataIfDirty() {

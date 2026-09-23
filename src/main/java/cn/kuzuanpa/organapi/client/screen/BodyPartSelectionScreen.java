@@ -17,8 +17,7 @@ package cn.kuzuanpa.organapi.client.screen;
 
 import cn.kuzuanpa.organapi.api.query.BodyPartOverview;
 import cn.kuzuanpa.organapi.common.menu.BodyPartSelectionMenu;
-import cn.kuzuanpa.organapi.common.network.OpenOrganMenuC2SPacket;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -115,7 +114,7 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
         List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());
         for (OrganOverviewLayout.BodyPartArea area : areas) {
             if (isMouseOverArea(area, mouseX, mouseY)) {
-                OrganApiNetwork.channel().sendToServer(new OpenOrganMenuC2SPacket(menu.getTargetEntityId(), area.bodyPartId()));
+                Platform.network().sendOpenOrganMenu(menu.getTargetEntityId(), area.bodyPartId());
                 return true;
             }
         }
@@ -124,7 +123,11 @@ public class BodyPartSelectionScreen extends AbstractOrganApiScreen<BodyPartSele
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        //? if forge {
         renderBackground(graphics);
+        //?} else {
+        /*renderBackground(graphics, mouseX, mouseY, partialTick);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTick);
 
         ItemStack hoveredStack = hoveredPreviewStack(mouseX, mouseY);

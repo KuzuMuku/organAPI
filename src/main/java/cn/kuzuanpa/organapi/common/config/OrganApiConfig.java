@@ -15,17 +15,40 @@
 
 package cn.kuzuanpa.organapi.common.config;
 
+//? if forge {
 import net.minecraftforge.common.ForgeConfigSpec;
+//?} else {
+/*import net.neoforged.neoforge.common.ModConfigSpec;
+*///?}
 
+/**
+ * Common config. The spec type is the only loader difference: Forge names it
+ * {@code ForgeConfigSpec}, NeoForge 1.21.1 renames it to {@code ModConfigSpec}
+ * with an identical builder API, so it is handled with {@code //?} rather than a
+ * platform seam. The {@code COMMON_SPEC} object is handed to the loader entry,
+ * which registers it against its own {@code ModContainer}.
+ */
 public final class OrganApiConfig {
+    //? if forge {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final ForgeConfigSpec.DoubleValue SLAUGHTER_HEALTH_THRESHOLD_RATIO;
     public static final ForgeConfigSpec.IntValue SLAUGHTER_RESTRICTION_DURATION_TICKS;
     public static final ForgeConfigSpec.IntValue SLAUGHTER_SLOWNESS_AMPLIFIER;
     public static final ForgeConfigSpec.IntValue SLAUGHTER_WEAKNESS_AMPLIFIER;
+    //?} else {
+    /*public static final ModConfigSpec COMMON_SPEC;
+    public static final ModConfigSpec.DoubleValue SLAUGHTER_HEALTH_THRESHOLD_RATIO;
+    public static final ModConfigSpec.IntValue SLAUGHTER_RESTRICTION_DURATION_TICKS;
+    public static final ModConfigSpec.IntValue SLAUGHTER_SLOWNESS_AMPLIFIER;
+    public static final ModConfigSpec.IntValue SLAUGHTER_WEAKNESS_AMPLIFIER;
+    *///?}
 
     static {
+        //? if forge {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        //?} else {
+        /*ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+        *///?}
 
         builder.push("slaughter");
         SLAUGHTER_HEALTH_THRESHOLD_RATIO = builder

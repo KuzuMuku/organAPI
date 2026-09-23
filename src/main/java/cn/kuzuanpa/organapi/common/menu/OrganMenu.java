@@ -208,7 +208,7 @@ public class OrganMenu extends AbstractContainerMenu implements OrganSlotContext
         boolean wasDirty = player instanceof ServerPlayer
                 && IOrganHolder.resolve(target).map(IOrganHolder::isDirty).orElse(false);
         syncOrganDataIfDirty();
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+        Platform.events().postStateCommitted(
                 new cn.kuzuanpa.organapi.api.event.OrganStateCommittedEvent(player, target, "organ_menu", wasDirty));
     }
 

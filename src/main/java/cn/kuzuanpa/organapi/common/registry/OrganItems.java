@@ -24,35 +24,52 @@ import cn.kuzuanpa.organapi.common.item.ScalpelItem;
 import cn.kuzuanpa.organapi.common.item.SlaughterToolItem;
 import cn.kuzuanpa.organapi.core.model.BodyPartIds;
 import cn.kuzuanpa.organapi.platform.OrganIds;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+//? if forge {
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+//?} else {
+/*import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+*///?}
 
+/**
+ * Item registry holder. The {@code DeferredRegister} concept is identical on both
+ * loaders; only its package and the registry key it is created from differ (a
+ * minor signature diff handled with {@code //?}). Holder fields are typed as
+ * {@link Supplier} because Forge's {@code RegistryObject} and NeoForge's
+ * {@code DeferredHolder} both implement it, so all downstream {@code .get()} calls
+ * are loader-neutral. The mod-bus wiring itself lives in {@code OrganRegistrar}.
+ */
 public final class OrganItems {
+    //? if forge {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, OrganApiMod.MOD_ID);
+    //?} else {
+    /*public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, OrganApiMod.MOD_ID);
+    *///?}
 
-    public static final RegistryObject<Item> CHEST_OPENER = ITEMS.register("chest_opener", () -> new OrganPouchItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> ORGAN_POUCH = ITEMS.register("organ_pouch", () -> new OrganPouchItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> SCALPEL = ITEMS.register("scalpel", () -> new ScalpelItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> SLAUGHTER_TOOL = ITEMS.register("slaughter_tool", () -> new SlaughterToolItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> DEBUG_HEART_INJECTOR = ITEMS.register("debug_heart_injector", () -> new DebugHeartInjectorItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> SAMPLE_BRAIN = ITEMS.register("sample_brain",
+    public static final Supplier<Item> CHEST_OPENER = ITEMS.register("chest_opener", () -> new OrganPouchItem(new Item.Properties().stacksTo(1)));
+    public static final Supplier<Item> ORGAN_POUCH = ITEMS.register("organ_pouch", () -> new OrganPouchItem(new Item.Properties().stacksTo(1)));
+    public static final Supplier<Item> SCALPEL = ITEMS.register("scalpel", () -> new ScalpelItem(new Item.Properties().stacksTo(1)));
+    public static final Supplier<Item> SLAUGHTER_TOOL = ITEMS.register("slaughter_tool", () -> new SlaughterToolItem(new Item.Properties().stacksTo(1)));
+    public static final Supplier<Item> DEBUG_HEART_INJECTOR = ITEMS.register("debug_heart_injector", () -> new DebugHeartInjectorItem(new Item.Properties().stacksTo(1)));
+    public static final Supplier<Item> SAMPLE_BRAIN = ITEMS.register("sample_brain",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_brain")));
-    public static final RegistryObject<Item> SAMPLE_HEART = ITEMS.register("sample_heart",
+    public static final Supplier<Item> SAMPLE_HEART = ITEMS.register("sample_heart",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_heart")));
-    public static final RegistryObject<Item> SAMPLE_LUNG = ITEMS.register("sample_lung",
+    public static final Supplier<Item> SAMPLE_LUNG = ITEMS.register("sample_lung",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_lung")));
-    public static final RegistryObject<Item> SAMPLE_TENDON = ITEMS.register("sample_tendon",
+    public static final Supplier<Item> SAMPLE_TENDON = ITEMS.register("sample_tendon",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_tendon")));
-    public static final RegistryObject<Item> SAMPLE_LEG_MUSCLE = ITEMS.register("sample_leg_muscle",
+    public static final Supplier<Item> SAMPLE_LEG_MUSCLE = ITEMS.register("sample_leg_muscle",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_leg_muscle")));
-    public static final RegistryObject<Item> CHEST_EXPANSION_KIT = ITEMS.register("chest_expansion_kit",
+    public static final Supplier<Item> CHEST_EXPANSION_KIT = ITEMS.register("chest_expansion_kit",
             () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.CHEST), 1));
-    public static final RegistryObject<Item> LEG_EXPANSION_KIT = ITEMS.register("leg_expansion_kit",
+    public static final Supplier<Item> LEG_EXPANSION_KIT = ITEMS.register("leg_expansion_kit",
             () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.LEFT_LEG), 1));
-    public static final RegistryObject<Item> RIGHT_LEG_EXPANSION_KIT = ITEMS.register("right_leg_expansion_kit",
+    public static final Supplier<Item> RIGHT_LEG_EXPANSION_KIT = ITEMS.register("right_leg_expansion_kit",
             () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.RIGHT_LEG), 1));
 
     private OrganItems() {

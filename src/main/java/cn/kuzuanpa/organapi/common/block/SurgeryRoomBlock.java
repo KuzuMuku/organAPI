@@ -18,6 +18,7 @@ package cn.kuzuanpa.organapi.common.block;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
 import cn.kuzuanpa.organapi.common.util.OrganDataKeys;
+import cn.kuzuanpa.organapi.platform.Platform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -40,16 +41,25 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class SurgeryRoomBlock extends HorizontalDirectionalBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    //? if neoforge {
+    /*public static final com.mojang.serialization.MapCodec<SurgeryRoomBlock> CODEC = simpleCodec(SurgeryRoomBlock::new);
+    *///?}
 
     public SurgeryRoomBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(FACING, net.minecraft.core.Direction.NORTH));
     }
+
+    //? if neoforge {
+    /*@Override
+    protected com.mojang.serialization.MapCodec<? extends SurgeryRoomBlock> codec() {
+        return CODEC;
+    }
+    *///?}
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
@@ -77,14 +87,18 @@ public class SurgeryRoomBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
+    //? if forge {
     public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    //?} else {
+    /*protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
+    *///?}
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             ResourceLocation defaultBodyPart = BodyPlanResolver.getDefaultBodyPartId(serverPlayer, OrganDataKeys.DEFAULT_BODY_PART);
             MenuProvider provider = new SimpleMenuProvider(
                     (windowId, inventory, entityPlayer) -> new OrganOverviewMenu(windowId, inventory, serverPlayer.getId(), defaultBodyPart),
                     Component.translatable("menu.organapi.organ_overview")
             );
-            NetworkHooks.openScreen(serverPlayer, provider, buf -> {
+            Platform.menus().openMenu(serverPlayer, provider, buf -> {
                 buf.writeInt(serverPlayer.getId());
                 buf.writeResourceLocation(defaultBodyPart);
             });

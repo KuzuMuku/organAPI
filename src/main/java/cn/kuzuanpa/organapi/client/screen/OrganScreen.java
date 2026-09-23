@@ -105,7 +105,11 @@ public class OrganScreen extends AbstractOrganApiScreen<OrganMenu> {
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        //? if forge {
         renderBackground(graphics);
+        //?} else {
+        /*renderBackground(graphics, mouseX, mouseY, partialTick);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTick);
         renderTooltip(graphics, mouseX, mouseY);
     }

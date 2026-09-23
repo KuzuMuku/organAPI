@@ -77,8 +77,10 @@ tasks {
             "forge_version" to project.property("deps.forge"),
             "forge_version_range" to project.property("deps.forge_version_range"),
             "loader_version_range" to project.property("deps.loader_version_range"),
+            "pack_format" to "15",
         )
         inputs.properties(props)
+        exclude("META-INF/neoforge.mods.toml")
         filesMatching(listOf("META-INF/mods.toml", "pack.mcmeta")) {
             expand(props)
         }

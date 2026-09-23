@@ -18,8 +18,7 @@ package cn.kuzuanpa.organapi.client.screen;
 import cn.kuzuanpa.organapi.api.query.BodyPartOverview;
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
-import cn.kuzuanpa.organapi.common.network.SelectBodyPartC2SPacket;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -161,7 +160,7 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
             int relativeX = OrganOverviewLayout.BODY_AREA_X + area.x();
             int relativeY = OrganOverviewLayout.BODY_AREA_Y + area.y();
             if (isHovering(relativeX, relativeY, area.width(), area.height(), mouseX, mouseY)) {
-                OrganApiNetwork.channel().sendToServer(new SelectBodyPartC2SPacket(area.index()));
+                Platform.network().sendSelectBodyPart(area.index());
                 return true;
             }
         }
@@ -170,7 +169,11 @@ public class OrganOverviewScreen extends AbstractContainerScreen<OrganOverviewMe
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        //? if forge {
         renderBackground(graphics);
+        //?} else {
+        /*renderBackground(graphics, mouseX, mouseY, partialTick);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTick);
 
         List<OrganOverviewLayout.BodyPartArea> areas = OrganOverviewLayout.bodyPartAreas(menu.getBodyPartIds(), menu.getSelectedBodyPartId(), menu.getTarget());

@@ -19,16 +19,18 @@ import cn.kuzuanpa.organapi.api.OrganApi;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
 import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
 import cn.kuzuanpa.organapi.platform.OrganIds;
+//? if forge {
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import java.util.List;
 import java.util.UUID;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+//?}
+import java.util.List;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,28 +40,39 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ScalpelItem extends Item {
+    //? if forge {
     private static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("0d8d11c5-fb6a-4a6b-ae2c-5b59e12f0aa1");
     private static final UUID ATTACK_SPEED_UUID = UUID.fromString("e18a39b3-7e59-43d2-b7d0-bf9050bc0ed2");
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
+    //?}
 
     public ScalpelItem(Properties properties) {
         super(properties);
+        //? if forge {
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
         builder.put(Attributes.ATTACK_DAMAGE,
                 new AttributeModifier(ATTACK_DAMAGE_UUID, "Weapon modifier", 1.0D, AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.ATTACK_SPEED,
                 new AttributeModifier(ATTACK_SPEED_UUID, "Weapon modifier", -2.0D, AttributeModifier.Operation.ADDITION));
         this.defaultModifiers = builder.build();
+        //?}
     }
 
+    //? if forge {
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
         return slot == EquipmentSlot.MAINHAND ? defaultModifiers : super.getAttributeModifiers(slot, stack);
     }
+    //?}
 
     @Override
+    //? if forge {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+    //?} else {
+    /*public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    *///?}
         tooltipComponents.add(Component.translatable("tooltip.organapi.scalpel"));
     }
 

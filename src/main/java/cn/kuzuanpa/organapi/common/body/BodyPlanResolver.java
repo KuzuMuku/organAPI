@@ -30,7 +30,9 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+//? if forge {
 import net.minecraftforge.registries.ForgeRegistries;
+//?}
 
 /**
  * Platform resolver: maps an entity to its body plan (needs the Forge entity-type
@@ -47,7 +49,11 @@ public final class BodyPlanResolver {
     }
 
     public static ResolvedBodyPlan resolve(EntityType<?> entityType) {
+        //? if forge {
         ResourceLocation typeKey = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+        //?} else {
+        /*ResourceLocation typeKey = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
+        *///?}
         Optional<BodyPlanDefinition> plan = typeKey == null
                 ? Optional.empty()
                 : BodyPlanRegistryAccess.getBodyPlanForEntityType(OrganIds.toOrganId(typeKey));

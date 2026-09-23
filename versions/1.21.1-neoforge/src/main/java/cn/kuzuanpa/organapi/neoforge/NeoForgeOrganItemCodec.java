@@ -13,29 +13,33 @@
  *
  */
 
-package cn.kuzuanpa.organapi.common.capability;
+package cn.kuzuanpa.organapi.neoforge;
 
+import cn.kuzuanpa.organapi.platform.OrganItemCodec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Forge-side item ↔ opaque-bytes encoding used to fill the
- * {@code OrganStateData.SlotData#item()} byte arrays. Keeps
- * {@code CompoundTag}/{@code NbtIo} out of the core; step 4's NeoForge port will
- * supply its own equivalent (item DataComponents → bytes).
+ * NeoForge implementation of {@link OrganItemCodec}. 1.21.1 items carry
+ * DataComponents rather than free-form NBT, so {@code ItemStack.save} now needs a
+ * {@code HolderLookup.Provider}; we take it from the entity's
+ * {@code level().registryAccess()}. The resulting {@link CompoundTag} is written
+ * to a {@code byte[]} with {@code NbtIo}, mirroring the Forge encoding shape while
+ * keeping the DataComponent divergence behind this seam.
  */
-final class ItemStackBytes {
-    private ItemStackBytes() {
-    }
-
-    static byte[] toBytes(ItemStack stack) {
-        CompoundTag tag = new CompoundTag();
-        stack.save(tag);
+public final class NeoForgeOrganItemCodec implements OrganItemCodec {
+    @Override
+    public byte[] encode(Entity ctx, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return new byte[0];
+        }
+        CompoundTag tag = (CompoundTag) stack.save(ctx.level().registryAccess(), new CompoundTag());
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
             NbtIo.write(tag, new java.io.DataOutputStream(buffer));
@@ -45,10 +49,14 @@ final class ItemStackBytes {
         return buffer.toByteArray();
     }
 
-    static ItemStack fromBytes(byte[] bytes) {
+    @Override
+    public ItemStack decode(Entity ctx, byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return ItemStack.EMPTY;
+        }
         try {
             CompoundTag tag = NbtIo.read(new java.io.DataInputStream(new ByteArrayInputStream(bytes)));
-            return tag == null ? ItemStack.EMPTY : ItemStack.of(tag);
+            return tag == null ? ItemStack.EMPTY : ItemStack.parseOptional(ctx.level().registryAccess(), tag);
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
         }

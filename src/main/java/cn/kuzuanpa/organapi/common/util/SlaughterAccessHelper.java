@@ -19,6 +19,7 @@ import cn.kuzuanpa.organapi.common.config.OrganApiConfig;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
 import cn.kuzuanpa.organapi.core.model.BodyPartIds;
 import cn.kuzuanpa.organapi.platform.OrganIds;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -30,7 +31,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.NetworkHooks;
 
 public final class SlaughterAccessHelper {
     private SlaughterAccessHelper() {
@@ -56,12 +56,15 @@ public final class SlaughterAccessHelper {
         int duration = OrganApiConfig.getSlaughterRestrictionDurationTicks();
         int slownessAmplifier = OrganApiConfig.getSlaughterSlownessAmplifier();
         int weaknessAmplifier = OrganApiConfig.getSlaughterWeaknessAmplifier();
+        // MobEffects entries are bare MobEffect on 1.20.1 and Holder<MobEffect> on
+        // 1.21.1; the MobEffectInstance ctor overload differs only by that param
+        // type, so the two call lines are a minor signature diff, not structural.
         target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, slownessAmplifier, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, weaknessAmplifier, false, true));
     }
 
     public static void openOverview(ServerPlayer viewer, LivingEntity target) {
-        NetworkHooks.openScreen(viewer, new SimpleMenuProvider(
+        Platform.menus().openMenu(viewer, new SimpleMenuProvider(
                 (windowId, inventory, entityPlayer) -> new OrganOverviewMenu(windowId, inventory, target.getId(), OrganIds.toResourceLocation(BodyPartIds.CHEST)),
                 Component.translatable("menu.organapi.organ_overview")), buf -> {
             buf.writeInt(target.getId());

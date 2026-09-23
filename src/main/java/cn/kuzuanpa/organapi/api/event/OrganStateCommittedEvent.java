@@ -17,7 +17,11 @@ package cn.kuzuanpa.organapi.api.event;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+//? if forge {
 import net.minecraftforge.eventbus.api.Event;
+//?} else {
+/*import net.neoforged.bus.api.Event;
+*///?}
 
 public class OrganStateCommittedEvent extends Event {
     private final Player viewer;

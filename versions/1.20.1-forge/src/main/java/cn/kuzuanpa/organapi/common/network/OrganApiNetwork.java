@@ -63,6 +63,16 @@ public final class OrganApiNetwork implements OrganNetwork {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> viewer), SyncOrganDataS2CPacket.from(target));
     }
 
+    @Override
+    public void sendOpenOrganMenu(int targetEntityId, ResourceLocation bodyPartId) {
+        CHANNEL.sendToServer(new OpenOrganMenuC2SPacket(targetEntityId, bodyPartId));
+    }
+
+    @Override
+    public void sendSelectBodyPart(int bodyPartIndex) {
+        CHANNEL.sendToServer(new SelectBodyPartC2SPacket(bodyPartIndex));
+    }
+
     /** Forge channel accessor for client-side C2S packet sends. */
     public static SimpleChannel channel() {
         return CHANNEL;

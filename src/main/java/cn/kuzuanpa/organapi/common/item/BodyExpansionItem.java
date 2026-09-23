@@ -45,8 +45,13 @@ public class BodyExpansionItem extends Item {
     }
 
     @Override
+    //? if forge {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+    //?} else {
+    /*public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    *///?}
         tooltipComponents.add(Component.translatable("tooltip.organapi.body_expansion_kit", amount,
                 Component.translatable("body_part." + bodyPartId.getNamespace() + "." + bodyPartId.getPath())));
     }

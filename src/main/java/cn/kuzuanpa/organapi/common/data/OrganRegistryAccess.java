@@ -28,7 +28,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+//? if forge {
 import net.minecraftforge.registries.ForgeRegistries;
+//?}
 
 /**
  * In-memory registry of the parsed core definitions. This is a platform class:
@@ -76,7 +78,11 @@ public final class OrganRegistryAccess {
         if (stack.getItem() instanceof OrganItem organItem) {
             return getOrgan(organItem.getDefinitionId(stack));
         }
+        //? if forge {
         ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        //?} else {
+        /*ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+        *///?}
         return itemId == null ? Optional.empty() : Optional.ofNullable(ORGANS_BY_ITEM.get(OrganIds.toOrganId(itemId)));
     }
 

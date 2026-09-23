@@ -23,6 +23,7 @@ import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
 import cn.kuzuanpa.organapi.core.model.OrganDefinition;
 import cn.kuzuanpa.organapi.core.state.OrganStateData;
 import cn.kuzuanpa.organapi.platform.OrganIds;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,10 +36,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<CompoundTag> {
+/**
+ * Common organ-holder logic. It is loader-neutral: item persistence goes through
+ * the {@link Platform#itemCodec()} seam (so the 1.20.1 {@code ItemStack}/NBT and
+ * the 1.21.1 {@code ItemStack}/DataComponent encodings stay behind platform-api),
+ * and the on-disk {@link CompoundTag} shape stores each organ as opaque bytes.
+ *
+ * <p>{@link #serializeNBT()}/{@link #deserializeNBT(CompoundTag)} back the Forge
+ * JSON-sidecar persistence; {@link #toStateData()}/{@link #loadStateData} back the
+ * loader-independent {@code OrganStateData} sync/attachment contract. Both funnel
+ * item bytes through the same codec.
+ */
+public class PlayerOrganHolder implements IOrganHolder {
     private static final String ORGAN_SLOT_TAG = "slot";
     private final Entity owner;
     private final Map<ResourceLocation, BodyPartState> bodyParts = new HashMap<>();
@@ -193,7 +204,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         bootstrapInitialized = initialized;
     }
 
-    @Override
+    /** Serializes to the on-disk {@link CompoundTag} shape (Forge JSON sidecar). */
     public CompoundTag serializeNBT() {
         CompoundTag root = new CompoundTag();
         root.putBoolean(BOOTSTRAP_INITIALIZED_TAG, bootstrapInitialized);
@@ -211,7 +222,13 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
                 }
                 CompoundTag organTag = new CompoundTag();
                 organTag.putInt(ORGAN_SLOT_TAG, slot);
+                // Same on-disk inline item shape on both loaders; only the extra
+                // HolderLookup.Provider parameter differs on 1.21.1 (minor sig diff).
+                //? if forge {
                 stack.save(organTag);
+                //?} else {
+                /*organTag.merge((CompoundTag) stack.save(owner.level().registryAccess(), new CompoundTag()));
+                *///?}
                 organsTag.add(organTag);
             }
             partTag.put("organs", organsTag);
@@ -221,7 +238,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         return root;
     }
 
-    @Override
+    /** Deserializes from the on-disk {@link CompoundTag} shape (Forge JSON sidecar). */
     public void deserializeNBT(CompoundTag nbt) {
         bodyParts.clear();
         bootstrapInitialized = nbt.getBoolean(BOOTSTRAP_INITIALIZED_TAG);
@@ -241,7 +258,11 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
                 if (slot < 0 || slot >= capacity) {
                     continue;
                 }
+                //? if forge {
                 ItemStack stack = ItemStack.of(organTag);
+                //?} else {
+                /*ItemStack stack = ItemStack.parseOptional(owner.level().registryAccess(), organTag);
+                *///?}
                 if (!stack.isEmpty()) {
                     while (state.organs.size() <= slot) {
                         state.organs.add(ItemStack.EMPTY);
@@ -272,7 +293,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
                 if (stack.isEmpty()) {
                     continue;
                 }
-                partState.addSlot(slot, ItemStackBytes.toBytes(stack));
+                partState.addSlot(slot, Platform.itemCodec().encode(owner, stack));
             }
         }
         return data;
@@ -293,7 +314,7 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
                 if (slot < 0 || slot >= capacity) {
                     continue;
                 }
-                ItemStack stack = ItemStackBytes.fromBytes(slotData.item());
+                ItemStack stack = Platform.itemCodec().decode(owner, slotData.item());
                 if (!stack.isEmpty()) {
                     while (state.organs.size() <= slot) {
                         state.organs.add(ItemStack.EMPTY);

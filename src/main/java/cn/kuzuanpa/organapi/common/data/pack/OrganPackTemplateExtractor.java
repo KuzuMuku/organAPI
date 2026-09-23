@@ -17,8 +17,13 @@ package cn.kuzuanpa.organapi.common.data.pack;
 
 import cn.kuzuanpa.organapi.OrganApiMod;
 import com.mojang.logging.LogUtils;
+//? if forge {
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
+//?} else {
+/*import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLPaths;
+*///?}
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -31,7 +36,7 @@ import java.util.stream.Stream;
 /**
  * Shared helper for organ add-on mods to ship a default custom pack that gets
  * extracted from the jar into {@code <gameDir>/organs/{data,resources}/<packName>/}
- * on first launch, so {@link OrganPackLoader} can serve it.
+ * on first launch, so the loader-specific pack source can serve it.
  *
  * <p>Templates must live in the mod jar at
  * {@code /pack_templates/data/<packName>/} and

@@ -40,11 +40,21 @@ import org.jetbrains.annotations.NotNull;
 
 public class SlaughterRoomBlock extends HorizontalDirectionalBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    //? if neoforge {
+    /*public static final com.mojang.serialization.MapCodec<SlaughterRoomBlock> CODEC = simpleCodec(SlaughterRoomBlock::new);
+    *///?}
 
     public SlaughterRoomBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(FACING, net.minecraft.core.Direction.NORTH));
     }
+
+    //? if neoforge {
+    /*@Override
+    protected com.mojang.serialization.MapCodec<? extends SlaughterRoomBlock> codec() {
+        return CODEC;
+    }
+    *///?}
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
@@ -72,7 +82,11 @@ public class SlaughterRoomBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
+    //? if forge {
     public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    //?} else {
+    /*protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
+    *///?}
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             var target = SlaughterAccessHelper.findLivingEntityDirectlyAbove(level, pos);
             if (target.isEmpty()) {

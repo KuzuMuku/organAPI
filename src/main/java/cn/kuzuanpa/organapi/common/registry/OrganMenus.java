@@ -20,25 +20,55 @@ import cn.kuzuanpa.organapi.common.menu.BodyPartSelectionMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
 import cn.kuzuanpa.organapi.common.util.OrganDataKeys;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.MenuType;
+//? if forge {
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+//?} else {
+/*import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+*///?}
 
+/**
+ * Menu-type registry. Two loader diffs, both {@code //?}: the {@code MenuType}
+ * factory helper is {@code IForgeMenuType} on Forge vs {@code IMenuTypeExtension}
+ * on NeoForge (same {@code create(IContainerFactory)} shape; the extra-data buf is
+ * a {@code FriendlyByteBuf} on Forge and a {@code RegistryFriendlyByteBuf} on
+ * NeoForge, but {@code readInt}/{@code readResourceLocation} exist on both), and
+ * the {@code DeferredRegister} package/key.
+ */
 public final class OrganMenus {
+    //? if forge {
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, OrganApiMod.MOD_ID);
+    //?} else {
+    /*public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, OrganApiMod.MOD_ID);
+    *///?}
 
-    public static final RegistryObject<MenuType<OrganMenu>> ORGAN_MENU = MENU_TYPES.register("organ_menu",
+    public static final Supplier<MenuType<OrganMenu>> ORGAN_MENU = MENU_TYPES.register("organ_menu",
+            //? if forge {
             () -> IForgeMenuType.create((windowId, inventory, data) -> new OrganMenu(windowId, inventory,
+            //?} else {
+            /*() -> IMenuTypeExtension.create((windowId, inventory, data) -> new OrganMenu(windowId, inventory,
+            *///?}
                     data.readableBytes() > 4 ? data.readInt() : inventory.player.getId(),
                     data.readableBytes() > 0 ? data.readResourceLocation() : OrganDataKeys.DEFAULT_BODY_PART)));
-    public static final RegistryObject<MenuType<BodyPartSelectionMenu>> BODY_PART_SELECTION_MENU = MENU_TYPES.register("body_part_selection",
+    public static final Supplier<MenuType<BodyPartSelectionMenu>> BODY_PART_SELECTION_MENU = MENU_TYPES.register("body_part_selection",
+            //? if forge {
             () -> IForgeMenuType.create((windowId, inventory, data) -> new BodyPartSelectionMenu(windowId, inventory,
+            //?} else {
+            /*() -> IMenuTypeExtension.create((windowId, inventory, data) -> new BodyPartSelectionMenu(windowId, inventory,
+            *///?}
                     data.readableBytes() > 0 ? data.readInt() : inventory.player.getId())));
-    public static final RegistryObject<MenuType<OrganOverviewMenu>> ORGAN_OVERVIEW_MENU = MENU_TYPES.register("organ_overview",
+    public static final Supplier<MenuType<OrganOverviewMenu>> ORGAN_OVERVIEW_MENU = MENU_TYPES.register("organ_overview",
+            //? if forge {
             () -> IForgeMenuType.create((windowId, inventory, data) -> new OrganOverviewMenu(windowId, inventory,
+            //?} else {
+            /*() -> IMenuTypeExtension.create((windowId, inventory, data) -> new OrganOverviewMenu(windowId, inventory,
+            *///?}
                     data.readableBytes() > 4 ? data.readInt() : inventory.player.getId(),
                     data.readableBytes() > 0 ? data.readResourceLocation() : ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "head"))));
 

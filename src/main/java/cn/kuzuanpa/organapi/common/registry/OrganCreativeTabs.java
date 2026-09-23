@@ -16,45 +16,66 @@
 package cn.kuzuanpa.organapi.common.registry;
 
 import cn.kuzuanpa.organapi.OrganApiMod;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+//? if forge {
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+//?} else {
+/*import net.neoforged.neoforge.registries.DeferredRegister;
+*///?}
 
-@Mod.EventBusSubscriber(modid = OrganApiMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+/**
+ * Creative-tab registry. The tab itself is a plain {@code DeferredRegister} entry
+ * (loader diff = package only, {@code //?}). The <em>content build</em> is a
+ * loader event ({@code BuildCreativeModeTabContentsEvent}) whose accessor shape
+ * differs, so the item list is exposed here as {@link #tabItems()} and each loader
+ * entry ({@code OrganApiForge}/{@code OrganApiNeoForge}) subscribes its own event
+ * and feeds this list — the event wiring is the structural coupling that goes to
+ * the loader source set, the content itself stays common.
+ */
 public final class OrganCreativeTabs {
+    //? if forge {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, OrganApiMod.MOD_ID);
+    //?} else {
+    /*public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, OrganApiMod.MOD_ID);
+    *///?}
 
-    public static final RegistryObject<CreativeModeTab> ORGAN_API = TABS.register("organ_api", () -> CreativeModeTab.builder()
+    public static final Supplier<CreativeModeTab> ORGAN_API = TABS.register("organ_api", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.organapi"))
             .icon(() -> new ItemStack(OrganItems.SCALPEL.get()))
             .build());
 
-    @SubscribeEvent
-    public static void buildContents(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTab() != ORGAN_API.get()) {
-            return;
+    /** The items shown in the organAPI creative tab, in display order. */
+    public static List<Supplier<Item>> tabItems() {
+        return List.of(
+                OrganItems.CHEST_OPENER,
+                OrganItems.ORGAN_POUCH,
+                OrganItems.SCALPEL,
+                OrganItems.SLAUGHTER_TOOL,
+                OrganItems.DEBUG_HEART_INJECTOR,
+                OrganBlocks.SURGERY_ROOM_ITEM,
+                OrganBlocks.SLAUGHTER_ROOM_ITEM,
+                OrganItems.SAMPLE_BRAIN,
+                OrganItems.SAMPLE_HEART,
+                OrganItems.SAMPLE_LUNG,
+                OrganItems.SAMPLE_TENDON,
+                OrganItems.SAMPLE_LEG_MUSCLE,
+                OrganItems.CHEST_EXPANSION_KIT,
+                OrganItems.LEG_EXPANSION_KIT,
+                OrganItems.RIGHT_LEG_EXPANSION_KIT);
+    }
+
+    /** Feeds {@link #tabItems()} to a loader-supplied {@code accept} sink. */
+    public static void buildContents(Consumer<ItemStack> accept) {
+        for (Supplier<Item> item : tabItems()) {
+            accept.accept(new ItemStack(item.get()));
         }
-        event.accept(OrganItems.CHEST_OPENER.get());
-        event.accept(OrganItems.ORGAN_POUCH.get());
-        event.accept(OrganItems.SCALPEL.get());
-        event.accept(OrganItems.SLAUGHTER_TOOL.get());
-        event.accept(OrganItems.DEBUG_HEART_INJECTOR.get());
-        event.accept(OrganBlocks.SURGERY_ROOM_ITEM.get());
-        event.accept(OrganBlocks.SLAUGHTER_ROOM_ITEM.get());
-        event.accept(OrganItems.SAMPLE_BRAIN.get());
-        event.accept(OrganItems.SAMPLE_HEART.get());
-        event.accept(OrganItems.SAMPLE_LUNG.get());
-        event.accept(OrganItems.SAMPLE_TENDON.get());
-        event.accept(OrganItems.SAMPLE_LEG_MUSCLE.get());
-        event.accept(OrganItems.CHEST_EXPANSION_KIT.get());
-        event.accept(OrganItems.LEG_EXPANSION_KIT.get());
-        event.accept(OrganItems.RIGHT_LEG_EXPANSION_KIT.get());
     }
 
     private OrganCreativeTabs() {

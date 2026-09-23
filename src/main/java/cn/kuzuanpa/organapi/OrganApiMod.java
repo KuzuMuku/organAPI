@@ -15,68 +15,23 @@
 
 package cn.kuzuanpa.organapi;
 
-import cn.kuzuanpa.organapi.client.ClientSetup;
-import cn.kuzuanpa.organapi.common.capability.ForgeOrganStorage;
-import cn.kuzuanpa.organapi.common.config.OrganApiConfig;
-import cn.kuzuanpa.organapi.common.data.BodyPartDefinitionLoader;
-import cn.kuzuanpa.organapi.common.data.BodyPlanDefinitionLoader;
-import cn.kuzuanpa.organapi.common.data.OrganDefinitionLoader;
-import cn.kuzuanpa.organapi.common.data.pack.OrganPackLoader;
 import cn.kuzuanpa.organapi.common.data.pack.OrganPackTemplateExtractor;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
-import cn.kuzuanpa.organapi.common.registry.OrganBlocks;
-import cn.kuzuanpa.organapi.common.registry.OrganCreativeTabs;
-import cn.kuzuanpa.organapi.common.registry.OrganItems;
-import cn.kuzuanpa.organapi.common.registry.OrganMenus;
-import cn.kuzuanpa.organapi.platform.Platform;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod(OrganApiMod.MOD_ID)
-public class OrganApiMod {
+/**
+ * Loader-neutral mod bootstrap. The per-loader entry classes
+ * ({@code OrganApiForge}, {@code OrganApiNeoForge}) install the platform
+ * implementations into {@link cn.kuzuanpa.organapi.platform.Platform} and wire the
+ * loader's registration/networking/reload/pack events, then call {@link #init()}
+ * for the shared one-time setup that touches no loader API directly.
+ */
+public final class OrganApiMod {
     public static final String MOD_ID = "organapi";
 
-    public OrganApiMod(FMLJavaModLoadingContext context) {
-        IEventBus modBus = context.getModEventBus();
+    private OrganApiMod() {
+    }
 
-        // Install the Forge platform implementations before any common code touches Platform.
-        ForgeOrganStorage storage = new ForgeOrganStorage();
-        OrganApiNetwork network = new OrganApiNetwork();
-        Platform.install(storage, network);
-
+    /** Shared one-time initialization common to every loader. */
+    public static void init() {
         OrganPackTemplateExtractor.extractDefaultsIfAbsent();
-
-        context.registerConfig(ModConfig.Type.COMMON, OrganApiConfig.COMMON_SPEC);
-        OrganItems.ITEMS.register(modBus);
-        OrganBlocks.BLOCKS.register(modBus);
-        OrganCreativeTabs.TABS.register(modBus);
-        OrganMenus.MENU_TYPES.register(modBus);
-        modBus.addListener(this::onClientSetup);
-        modBus.addListener(this::onAddPackFinders);
-
-        network.register();
-        storage.register();
-        MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListeners);
-    }
-
-    private void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(ClientSetup::registerScreens);
-    }
-
-    private void onAddPackFinders(AddPackFindersEvent event) {
-        event.addRepositorySource(new OrganPackLoader(event.getPackType()));
-    }
-
-    private void onAddReloadListeners(AddReloadListenerEvent event) {
-        event.addListener(BodyPartDefinitionLoader.INSTANCE);
-        event.addListener(BodyPlanDefinitionLoader.INSTANCE);
-        event.addListener(OrganDefinitionLoader.INSTANCE);
     }
 }
