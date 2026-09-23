@@ -13,28 +13,35 @@
  *
  */
 
-package cn.kuzuanpa.organapi.api.body;
+package cn.kuzuanpa.organapi.core.model;
 
 import java.util.List;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 
+/**
+ * Version-agnostic body-part definition. Mirror of the former platform
+ * {@code cn.kuzuanpa.organapi.api.body.BodyPartDefinition} with all Minecraft
+ * coupling removed:
+ * <ul>
+ *   <li>{@code ResourceLocation} → {@link OrganId}</li>
+ *   <li>{@code List<TagKey<Item>> acceptedTags} → {@code List<OrganId> acceptedTags}
+ *       (tag ids as plain identifiers; the platform resolves them to real tags)</li>
+ *   <li>{@code getDisplayName()}/{@code accepts(ItemStack)} moved to the platform
+ *       layer, which has access to {@code Component} / {@code ItemStack}.</li>
+ * </ul>
+ */
 public record BodyPartDefinition(
-        ResourceLocation id,
+        OrganId id,
         String translationKey,
         int defaultCapacity,
         Integer maxCapacity,
         int sortOrder,
-        List<TagKey<Item>> acceptedTags,
+        List<OrganId> acceptedTags,
         float visualWidthRatio,
         float visualHeightRatio,
         OverviewArea overviewArea
 ) {
-    private static final TagKey<Item> ORGAN_TAG = ItemTags.create(ResourceLocation.fromNamespaceAndPath("organapi", "organs"));
+    /** Default organ tag every body part accepts when it declares no explicit tags. */
+    public static final OrganId ORGAN_TAG = OrganId.of("organapi", "organs");
 
     public BodyPartDefinition {
         defaultCapacity = Math.max(0, defaultCapacity);
@@ -49,24 +56,8 @@ public record BodyPartDefinition(
         }
     }
 
-    public Component getDisplayName() {
-        return Component.translatable(translationKey);
-    }
-
-    public boolean accepts(ItemStack stack) {
-        if (acceptedTags.isEmpty() || !stack.is(ORGAN_TAG)) {
-            return true;
-        }
-        for (TagKey<Item> tagKey : acceptedTags) {
-            if (stack.is(tagKey)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static BodyPartDefinition simple(ResourceLocation id, int defaultCapacity, int sortOrder) {
-        return new BodyPartDefinition(id, "body_part." + id.getNamespace() + "." + id.getPath(), defaultCapacity, null, sortOrder,
+    public static BodyPartDefinition simple(OrganId id, int defaultCapacity, int sortOrder) {
+        return new BodyPartDefinition(id, "body_part." + id.namespace() + "." + id.path(), defaultCapacity, null, sortOrder,
                 List.of(ORGAN_TAG), 1.0F, 1.0F, null);
     }
 

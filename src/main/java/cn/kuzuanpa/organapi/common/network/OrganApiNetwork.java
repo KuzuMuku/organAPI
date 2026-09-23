@@ -16,6 +16,7 @@
 package cn.kuzuanpa.organapi.common.network;
 
 import cn.kuzuanpa.organapi.OrganApiMod;
+import cn.kuzuanpa.organapi.platform.OrganNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -23,7 +24,11 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-public final class OrganApiNetwork {
+/**
+ * Forge implementation of {@link OrganNetwork}, backed by a {@code SimpleChannel}.
+ * Wire payloads carry the loader-independent {@code OrganStateData} codec bytes.
+ */
+public final class OrganApiNetwork implements OrganNetwork {
     private static final String PROTOCOL = "1";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "main"),
@@ -33,10 +38,8 @@ public final class OrganApiNetwork {
     );
     private static int nextId;
 
-    private OrganApiNetwork() {
-    }
-
-    public static void register() {
+    @Override
+    public void register() {
         CHANNEL.registerMessage(nextId++, SyncOrganDataS2CPacket.class,
                 SyncOrganDataS2CPacket::encode,
                 SyncOrganDataS2CPacket::decode,
@@ -55,10 +58,12 @@ public final class OrganApiNetwork {
                 SelectBodyPartC2SPacket::handle);
     }
 
-    public static void sync(ServerPlayer viewer, Entity target) {
+    @Override
+    public void sync(ServerPlayer viewer, Entity target) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> viewer), SyncOrganDataS2CPacket.from(target));
     }
 
+    /** Forge channel accessor for client-side C2S packet sends. */
     public static SimpleChannel channel() {
         return CHANNEL;
     }

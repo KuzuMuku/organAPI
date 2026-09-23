@@ -15,8 +15,9 @@
 
 package cn.kuzuanpa.organapi.client.screen;
 
-import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
+import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
@@ -46,13 +47,13 @@ public final class OrganOverviewLayout {
 
     public static GridDimensions previewGrid(Entity entity, ResourceLocation bodyPartId, int capacity) {
         BodyPartDefinition definition = BodyPlanResolver.getBodyPart(entity, bodyPartId)
-                .orElse(BodyPartDefinition.simple(bodyPartId, Math.max(1, capacity), 0));
+                .orElse(BodyPartDefinition.simple(OrganIds.toOrganId(bodyPartId), Math.max(1, capacity), 0));
         return gridFor(capacity, definition.visualWidthRatio(), definition.visualHeightRatio(), 1, capacity);
     }
 
     public static GridDimensions editorGrid(Entity entity, ResourceLocation bodyPartId, int capacity) {
         BodyPartDefinition definition = BodyPlanResolver.getBodyPart(entity, bodyPartId)
-                .orElse(BodyPartDefinition.simple(bodyPartId, Math.max(1, capacity), 0));
+                .orElse(BodyPartDefinition.simple(OrganIds.toOrganId(bodyPartId), Math.max(1, capacity), 0));
         return gridFor(capacity, definition.visualWidthRatio(), definition.visualHeightRatio(), 1, 8);
     }
 

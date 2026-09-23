@@ -16,13 +16,12 @@
 package cn.kuzuanpa.organapi.common.capability;
 
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
-import cn.kuzuanpa.organapi.api.extension.OrganBootstrapApi;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 
 public interface IOrganHolder {
@@ -75,13 +74,11 @@ public interface IOrganHolder {
      */
     void setBootstrapInitialized(boolean initialized);
 
-    static @NotNull LazyOptional<IOrganHolder> get(@NotNull Entity entity) {
-        LazyOptional<IOrganHolder> optional = entity.getCapability(OrganCapabilities.ORGAN_HOLDER);
-        optional.ifPresent(holder -> OrganBootstrapApi.bootstrap(entity, holder));
-        return optional;
+    static @NotNull Optional<IOrganHolder> get(@NotNull Entity entity) {
+        return Platform.storage().get(entity);
     }
 
     static @NotNull Optional<IOrganHolder> resolve(@NotNull Entity entity) {
-        return get(entity).resolve();
+        return Platform.storage().resolve(entity);
     }
 }

@@ -15,8 +15,9 @@
 
 package cn.kuzuanpa.organapi.client.screen;
 
-import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
+import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +35,7 @@ public final class OrganScreenLayout {
 
     public static GridDimensions organGrid(Entity entity, ResourceLocation bodyPartId, int capacity) {
         BodyPartDefinition definition = BodyPlanResolver.getBodyPart(entity, bodyPartId)
-                .orElse(BodyPartDefinition.simple(bodyPartId, Math.max(1, capacity), 0));
+                .orElse(BodyPartDefinition.simple(OrganIds.toOrganId(bodyPartId), Math.max(1, capacity), 0));
         int safeCapacity = Math.max(1, capacity);
         float base = (float) Math.sqrt(safeCapacity);
         int columns = Math.max(1, Math.round(base * (float) Math.sqrt(definition.visualWidthRatio() / definition.visualHeightRatio())));

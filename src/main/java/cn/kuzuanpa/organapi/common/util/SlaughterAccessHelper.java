@@ -15,9 +15,10 @@
 
 package cn.kuzuanpa.organapi.common.util;
 
-import cn.kuzuanpa.organapi.api.body.BodyPartIds;
 import cn.kuzuanpa.organapi.common.config.OrganApiConfig;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
+import cn.kuzuanpa.organapi.core.model.BodyPartIds;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -61,10 +62,10 @@ public final class SlaughterAccessHelper {
 
     public static void openOverview(ServerPlayer viewer, LivingEntity target) {
         NetworkHooks.openScreen(viewer, new SimpleMenuProvider(
-                (windowId, inventory, entityPlayer) -> new OrganOverviewMenu(windowId, inventory, target.getId(), BodyPartIds.CHEST),
+                (windowId, inventory, entityPlayer) -> new OrganOverviewMenu(windowId, inventory, target.getId(), OrganIds.toResourceLocation(BodyPartIds.CHEST)),
                 Component.translatable("menu.organapi.organ_overview")), buf -> {
             buf.writeInt(target.getId());
-            buf.writeResourceLocation(BodyPartIds.CHEST);
+            buf.writeResourceLocation(OrganIds.toResourceLocation(BodyPartIds.CHEST));
         });
     }
 }

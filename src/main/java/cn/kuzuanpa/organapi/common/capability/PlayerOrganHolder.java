@@ -15,11 +15,14 @@
 
 package cn.kuzuanpa.organapi.common.capability;
 
-import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
-import cn.kuzuanpa.organapi.api.organ.OrganDefinition;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
+import cn.kuzuanpa.organapi.common.data.OrganItemMatcher;
+import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
+import cn.kuzuanpa.organapi.core.model.OrganDefinition;
+import cn.kuzuanpa.organapi.core.state.OrganStateData;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -251,6 +254,58 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
         dirty = false;
     }
 
+    /**
+     * Snapshots the holder into the loader-independent {@link OrganStateData}
+     * DTO. Mirrors {@link #serializeNBT()} (only occupied slots within capacity),
+     * but carries item data as opaque bytes so the snapshot never depends on
+     * {@code CompoundTag}. Used by the {@code OrganStorage}/network contract.
+     */
+    public OrganStateData toStateData() {
+        OrganStateData data = new OrganStateData();
+        data.setBootstrapInitialized(bootstrapInitialized);
+        for (Map.Entry<ResourceLocation, BodyPartState> entry : bodyParts.entrySet()) {
+            BodyPartState state = entry.getValue();
+            OrganStateData.PartState partState = data.addPart(OrganIds.toOrganId(entry.getKey()), state.bonusCapacity);
+            int capacity = getCapacity(entry.getKey());
+            for (int slot = 0; slot < capacity && slot < state.organs.size(); slot++) {
+                ItemStack stack = state.organs.get(slot);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                partState.addSlot(slot, ItemStackBytes.toBytes(stack));
+            }
+        }
+        return data;
+    }
+
+    /** Applies an {@link OrganStateData} snapshot; mirror of {@link #deserializeNBT(CompoundTag)}. */
+    public void loadStateData(OrganStateData data) {
+        bodyParts.clear();
+        bootstrapInitialized = data.isBootstrapInitialized();
+        for (OrganStateData.PartState partState : data.parts()) {
+            ResourceLocation id = OrganIds.toResourceLocation(partState.bodyPartId());
+            BodyPartState state = getState(id);
+            state.bonusCapacity = partState.bonusCapacity();
+            state.organs.clear();
+            int capacity = getCapacity(id);
+            for (OrganStateData.SlotData slotData : partState.slots()) {
+                int slot = slotData.slot();
+                if (slot < 0 || slot >= capacity) {
+                    continue;
+                }
+                ItemStack stack = ItemStackBytes.fromBytes(slotData.item());
+                if (!stack.isEmpty()) {
+                    while (state.organs.size() <= slot) {
+                        state.organs.add(ItemStack.EMPTY);
+                    }
+                    state.organs.set(slot, stack);
+                }
+            }
+            ensureSlotCount(id);
+        }
+        dirty = false;
+    }
+
     private @NotNull OrganInstallResult trySetOrgan(@NotNull ResourceLocation bodyPartId, int slotIndex, @NotNull ItemStack stack, boolean consumeStack) {
         Optional<BodyPartDefinition> bodyPart = BodyPlanResolver.getBodyPart(owner, bodyPartId);
         if (bodyPart.isEmpty()) {
@@ -270,10 +325,10 @@ public class PlayerOrganHolder implements IOrganHolder, INBTSerializable<Compoun
             return OrganInstallResult.success(Component.translatable("message.organapi.removed"));
         }
         Optional<OrganDefinition> organ = OrganRegistryAccess.getOrgan(stack);
-        if (!bodyPart.get().accepts(stack)) {
+        if (!OrganItemMatcher.accepts(bodyPart.get(), stack)) {
             return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_body_part"));
         }
-        if (organ.isPresent() && !organ.get().supports(bodyPartId)) {
+        if (organ.isPresent() && !organ.get().supports(OrganIds.toOrganId(bodyPartId))) {
             return OrganInstallResult.fail(Component.translatable("message.organapi.invalid_body_part"));
         }
         ItemStack previous = state.organs.get(slotIndex);

@@ -13,19 +13,21 @@
  *
  */
 
-package cn.kuzuanpa.organapi.api.body;
+package cn.kuzuanpa.organapi.core.model;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 
+/**
+ * Version-agnostic body-plan definition. Mirror of the former platform
+ * {@code cn.kuzuanpa.organapi.api.body.BodyPlanDefinition} with
+ * {@code ResourceLocation}/{@code TagKey<Item>} replaced by {@link OrganId}.
+ */
 public record BodyPlanDefinition(
-        ResourceLocation id,
-        List<ResourceLocation> entityTypes,
-        Map<ResourceLocation, PartDefinition> parts
+        OrganId id,
+        List<OrganId> entityTypes,
+        Map<OrganId, PartDefinition> parts
 ) {
     public BodyPlanDefinition {
         entityTypes = List.copyOf(entityTypes);
@@ -38,7 +40,7 @@ public record BodyPlanDefinition(
             Integer capacity,
             Integer maxCapacity,
             Integer sortOrder,
-            List<TagKey<Item>> acceptedTags,
+            List<OrganId> acceptedTags,
             Float visualWidthRatio,
             Float visualHeightRatio,
             BodyPartDefinition.OverviewArea overviewArea

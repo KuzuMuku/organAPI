@@ -15,18 +15,23 @@
 
 package cn.kuzuanpa.organapi.common.data;
 
-import cn.kuzuanpa.organapi.api.body.BodyPlanDefinition;
+import cn.kuzuanpa.organapi.core.model.BodyPlanDefinition;
+import cn.kuzuanpa.organapi.core.model.OrganId;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
 
+/**
+ * In-memory body-plan registry (platform class). Keyed by core {@link OrganId};
+ * the entity-type lookup key is the core id derived from the loader's
+ * {@code ResourceLocation} at the resolver boundary.
+ */
 public final class BodyPlanRegistryAccess {
-    public static final ResourceLocation DEFAULT_PLAN_ID = ResourceLocation.fromNamespaceAndPath("organapi", "humanoid");
+    public static final OrganId DEFAULT_PLAN_ID = OrganId.of("organapi", "humanoid");
 
-    private static Map<ResourceLocation, BodyPlanDefinition> bodyPlans = Map.of();
-    private static Map<ResourceLocation, ResourceLocation> entityTypePlans = Map.of();
+    private static Map<OrganId, BodyPlanDefinition> bodyPlans = Map.of();
+    private static Map<OrganId, OrganId> entityTypePlans = Map.of();
 
     private BodyPlanRegistryAccess() {
     }
@@ -35,23 +40,23 @@ public final class BodyPlanRegistryAccess {
         return bodyPlans.values();
     }
 
-    public static Optional<BodyPlanDefinition> getBodyPlan(ResourceLocation id) {
+    public static Optional<BodyPlanDefinition> getBodyPlan(OrganId id) {
         return Optional.ofNullable(bodyPlans.get(id));
     }
 
-    public static Optional<BodyPlanDefinition> getBodyPlanForEntityType(ResourceLocation entityTypeId) {
-        ResourceLocation planId = entityTypePlans.get(entityTypeId);
+    public static Optional<BodyPlanDefinition> getBodyPlanForEntityType(OrganId entityTypeId) {
+        OrganId planId = entityTypePlans.get(entityTypeId);
         if (planId == null) {
             return Optional.empty();
         }
         return getBodyPlan(planId);
     }
 
-    public static void replaceBodyPlans(Map<ResourceLocation, BodyPlanDefinition> replacements) {
-        Map<ResourceLocation, BodyPlanDefinition> orderedPlans = new LinkedHashMap<>(replacements);
-        Map<ResourceLocation, ResourceLocation> mappings = new LinkedHashMap<>();
-        for (Map.Entry<ResourceLocation, BodyPlanDefinition> entry : orderedPlans.entrySet()) {
-            for (ResourceLocation entityTypeId : entry.getValue().entityTypes()) {
+    public static void replaceBodyPlans(Map<OrganId, BodyPlanDefinition> replacements) {
+        Map<OrganId, BodyPlanDefinition> orderedPlans = new LinkedHashMap<>(replacements);
+        Map<OrganId, OrganId> mappings = new LinkedHashMap<>();
+        for (Map.Entry<OrganId, BodyPlanDefinition> entry : orderedPlans.entrySet()) {
+            for (OrganId entityTypeId : entry.getValue().entityTypes()) {
                 mappings.put(entityTypeId, entry.getKey());
             }
         }

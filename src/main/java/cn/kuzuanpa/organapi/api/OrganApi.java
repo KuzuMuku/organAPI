@@ -15,16 +15,17 @@
 
 package cn.kuzuanpa.organapi.api;
 
-import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
-import cn.kuzuanpa.organapi.api.body.ResolvedBodyPlan;
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
-import cn.kuzuanpa.organapi.api.organ.OrganDefinition;
 import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
+import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
+import cn.kuzuanpa.organapi.core.model.OrganDefinition;
+import cn.kuzuanpa.organapi.core.model.ResolvedBodyPlan;
+import cn.kuzuanpa.organapi.platform.OrganIds;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -119,7 +120,7 @@ public final class OrganApi {
             return;
         }
         if (entity instanceof ServerPlayer serverPlayer) {
-            OrganApiNetwork.sync(serverPlayer, serverPlayer);
+            Platform.network().sync(serverPlayer, serverPlayer);
             if (serverPlayer.containerMenu instanceof OrganMenu organMenu) {
                 organMenu.broadcastChanges();
             }

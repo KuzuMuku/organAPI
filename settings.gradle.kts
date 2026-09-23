@@ -25,3 +25,7 @@ stonecutter {
         vcsVersion = "1.20.1-forge"
     }
 }
+
+// Pure-Java, zero-MC core module consumed by every loader target.
+include("organ-core")
+

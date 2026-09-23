@@ -18,7 +18,7 @@ package cn.kuzuanpa.organapi.common.item;
 import cn.kuzuanpa.organapi.api.OrganApi;
 import cn.kuzuanpa.organapi.common.menu.OrganMenu;
 import cn.kuzuanpa.organapi.common.menu.OrganOverviewMenu;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
+import cn.kuzuanpa.organapi.platform.Platform;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -61,7 +61,7 @@ public class BodyExpansionItem extends Item {
                     stack.shrink(1);
                 }
                 if (player instanceof ServerPlayer serverPlayer) {
-                    OrganApiNetwork.sync(serverPlayer, serverPlayer);
+                    Platform.network().sync(serverPlayer, serverPlayer);
                     if (serverPlayer.containerMenu instanceof OrganMenu organMenu) {
                         organMenu.broadcastChanges();
                     }

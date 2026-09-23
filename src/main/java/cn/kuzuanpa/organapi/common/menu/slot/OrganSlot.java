@@ -15,9 +15,11 @@
 
 package cn.kuzuanpa.organapi.common.menu.slot;
 
+import cn.kuzuanpa.organapi.common.data.OrganItemMatcher;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
 import cn.kuzuanpa.organapi.common.inventory.OrganPartContainer;
 import cn.kuzuanpa.organapi.common.menu.OrganSlotContext;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -37,8 +39,8 @@ public class OrganSlot extends Slot {
     @Override
     public boolean mayPlace(@NotNull ItemStack stack) {
         return isActive()
-                && OrganRegistryAccess.getBodyPart(menu.getSelectedBodyPartId()).map(def -> def.accepts(stack)).orElse(false)
-                && OrganRegistryAccess.getOrgan(stack).map(def -> def.supports(menu.getSelectedBodyPartId())).orElse(true)
+                && OrganRegistryAccess.getBodyPart(menu.getSelectedBodyPartId()).map(def -> OrganItemMatcher.accepts(def, stack)).orElse(false)
+                && OrganRegistryAccess.getOrgan(stack).map(def -> def.supports(OrganIds.toOrganId(menu.getSelectedBodyPartId()))).orElse(true)
                 && (!(container instanceof OrganPartContainer organPartContainer) || organPartContainer.canSetItem(organIndex, stack));
     }
 

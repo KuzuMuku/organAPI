@@ -13,16 +13,20 @@
  *
  */
 
-package cn.kuzuanpa.organapi.api.organ;
+package cn.kuzuanpa.organapi.core.model;
 
 import java.util.List;
 import java.util.Set;
-import net.minecraft.resources.ResourceLocation;
 
+/**
+ * Version-agnostic organ definition. Mirror of the former platform
+ * {@code cn.kuzuanpa.organapi.api.organ.OrganDefinition} without any Minecraft
+ * type; the platform adapts {@link OrganId} to/from {@code ResourceLocation}.
+ */
 public record OrganDefinition(
-        ResourceLocation id,
-        ResourceLocation itemId,
-        Set<ResourceLocation> validParts,
+        OrganId id,
+        OrganId itemId,
+        Set<OrganId> validParts,
         int size,
         List<String> tooltips,
         List<String> tags
@@ -33,7 +37,7 @@ public record OrganDefinition(
         tags = List.copyOf(tags);
     }
 
-    public boolean supports(ResourceLocation partId) {
+    public boolean supports(OrganId partId) {
         return validParts.isEmpty() || validParts.contains(partId);
     }
 }

@@ -22,7 +22,7 @@ import cn.kuzuanpa.organapi.common.body.BodyPlanResolver;
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
 import cn.kuzuanpa.organapi.common.inventory.OrganPartContainer;
 import cn.kuzuanpa.organapi.common.menu.slot.OrganSlot;
-import cn.kuzuanpa.organapi.common.network.OrganApiNetwork;
+import cn.kuzuanpa.organapi.platform.Platform;
 import cn.kuzuanpa.organapi.common.registry.OrganMenus;
 import cn.kuzuanpa.organapi.common.util.OrganDataKeys;
 import java.util.ArrayList;
@@ -205,7 +205,7 @@ public class OrganOverviewMenu extends AbstractContainerMenu implements OrganSlo
         }
         IOrganHolder.resolve(target).ifPresent(holder -> {
             if (holder.isDirty()) {
-                OrganApiNetwork.sync(serverPlayer, target);
+                Platform.network().sync(serverPlayer, target);
                 holder.clearDirty();
             }
         });

@@ -16,13 +16,14 @@
 package cn.kuzuanpa.organapi.common.registry;
 
 import cn.kuzuanpa.organapi.OrganApiMod;
-import cn.kuzuanpa.organapi.api.body.BodyPartIds;
 import cn.kuzuanpa.organapi.common.item.BodyExpansionItem;
 import cn.kuzuanpa.organapi.common.item.DebugHeartInjectorItem;
 import cn.kuzuanpa.organapi.common.item.OrganItem;
 import cn.kuzuanpa.organapi.common.item.OrganPouchItem;
 import cn.kuzuanpa.organapi.common.item.ScalpelItem;
 import cn.kuzuanpa.organapi.common.item.SlaughterToolItem;
+import cn.kuzuanpa.organapi.core.model.BodyPartIds;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
@@ -48,11 +49,11 @@ public final class OrganItems {
     public static final RegistryObject<Item> SAMPLE_LEG_MUSCLE = ITEMS.register("sample_leg_muscle",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_leg_muscle")));
     public static final RegistryObject<Item> CHEST_EXPANSION_KIT = ITEMS.register("chest_expansion_kit",
-            () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), BodyPartIds.CHEST, 1));
+            () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.CHEST), 1));
     public static final RegistryObject<Item> LEG_EXPANSION_KIT = ITEMS.register("leg_expansion_kit",
-            () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), BodyPartIds.LEFT_LEG, 1));
+            () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.LEFT_LEG), 1));
     public static final RegistryObject<Item> RIGHT_LEG_EXPANSION_KIT = ITEMS.register("right_leg_expansion_kit",
-            () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), BodyPartIds.RIGHT_LEG, 1));
+            () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.RIGHT_LEG), 1));
 
     private OrganItems() {
     }

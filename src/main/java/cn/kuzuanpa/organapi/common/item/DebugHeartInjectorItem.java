@@ -16,9 +16,10 @@
 package cn.kuzuanpa.organapi.common.item;
 
 import cn.kuzuanpa.organapi.api.OrganApi;
-import cn.kuzuanpa.organapi.api.body.BodyPartIds;
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
 import cn.kuzuanpa.organapi.common.registry.OrganItems;
+import cn.kuzuanpa.organapi.core.model.BodyPartIds;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -47,7 +48,7 @@ public class DebugHeartInjectorItem extends Item {
     @Override
     public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack, Player player, @NotNull LivingEntity target, @NotNull InteractionHand hand) {
         if (!player.level().isClientSide) {
-            OrganInstallResult result = OrganApi.install(target, BodyPartIds.CHEST, new ItemStack(OrganItems.SAMPLE_HEART.get()));
+            OrganInstallResult result = OrganApi.install(target, OrganIds.toResourceLocation(BodyPartIds.CHEST), new ItemStack(OrganItems.SAMPLE_HEART.get()));
             ChatFormatting color = result.success() ? ChatFormatting.GREEN : ChatFormatting.RED;
             player.displayClientMessage(result.message().copy().withStyle(color), true);
         }

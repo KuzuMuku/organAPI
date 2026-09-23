@@ -16,9 +16,9 @@
 package cn.kuzuanpa.organapi.common.inventory;
 
 import cn.kuzuanpa.organapi.api.install.OrganInstallResult;
-import cn.kuzuanpa.organapi.api.organ.OrganDefinition;
 import cn.kuzuanpa.organapi.common.capability.IOrganHolder;
 import cn.kuzuanpa.organapi.common.data.OrganRegistryAccess;
+import cn.kuzuanpa.organapi.core.model.OrganDefinition;
 import java.util.Optional;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

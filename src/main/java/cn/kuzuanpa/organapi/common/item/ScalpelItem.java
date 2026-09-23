@@ -16,8 +16,9 @@
 package cn.kuzuanpa.organapi.common.item;
 
 import cn.kuzuanpa.organapi.api.OrganApi;
-import cn.kuzuanpa.organapi.api.body.BodyPartDefinition;
 import cn.kuzuanpa.organapi.api.query.OrganQueryService;
+import cn.kuzuanpa.organapi.core.model.BodyPartDefinition;
+import cn.kuzuanpa.organapi.platform.OrganIds;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import java.util.List;
@@ -73,9 +74,10 @@ public class ScalpelItem extends Item {
 
     private void dropOrgans(LivingEntity target) {
         for (BodyPartDefinition bodyPart : OrganApi.getBodyParts()) {
-            int organAmount = OrganQueryService.getInstalledOrgans(target, bodyPart.id()).size();
+            net.minecraft.resources.ResourceLocation bodyPartId = OrganIds.toResourceLocation(bodyPart.id());
+            int organAmount = OrganQueryService.getInstalledOrgans(target, bodyPartId).size();
             for (int slotIndex = 0; slotIndex < organAmount; slotIndex++) {
-                ItemStack removed = OrganApi.removeOrgan(target, bodyPart.id(), slotIndex);
+                ItemStack removed = OrganApi.removeOrgan(target, bodyPartId, slotIndex);
                 if (!removed.isEmpty()) {
                     target.level().addFreshEntity(new ItemEntity(target.level(), target.getX(), target.getY(), target.getZ(), removed));
                 }

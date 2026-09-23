@@ -13,18 +13,21 @@
  *
  */
 
-package cn.kuzuanpa.organapi.api.body;
+package cn.kuzuanpa.organapi.core.model;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
 
+/**
+ * Version-agnostic resolved body plan. Mirror of the former platform
+ * {@code cn.kuzuanpa.organapi.api.body.ResolvedBodyPlan}, keyed by {@link OrganId}.
+ */
 public record ResolvedBodyPlan(
-        ResourceLocation id,
+        OrganId id,
         List<BodyPartDefinition> bodyParts,
-        Map<ResourceLocation, BodyPartDefinition> bodyPartsById
+        Map<OrganId, BodyPartDefinition> bodyPartsById
 ) {
     public ResolvedBodyPlan {
         bodyParts = List.copyOf(bodyParts);
@@ -35,15 +38,15 @@ public record ResolvedBodyPlan(
         return bodyParts;
     }
 
-    public List<ResourceLocation> getOrderedBodyPartIds() {
+    public List<OrganId> getOrderedBodyPartIds() {
         return bodyParts.stream().map(BodyPartDefinition::id).toList();
     }
 
-    public Optional<BodyPartDefinition> getBodyPart(ResourceLocation id) {
+    public Optional<BodyPartDefinition> getBodyPart(OrganId id) {
         return Optional.ofNullable(bodyPartsById.get(id));
     }
 
-    public ResourceLocation getDefaultBodyPartId(ResourceLocation fallback) {
+    public OrganId getDefaultBodyPartId(OrganId fallback) {
         return bodyParts.isEmpty() ? fallback : bodyParts.get(0).id();
     }
 }
