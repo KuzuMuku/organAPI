@@ -53,7 +53,7 @@ public final class OrganApiForge {
         ForgeOrganStorage storage = new ForgeOrganStorage();
         OrganApiNetwork network = new OrganApiNetwork();
         Platform.install(storage, network, new ForgeOrganItemCodec(),
-                new ForgeOrganMenuAccess(), new ForgeOrganEvents());
+                new ForgeOrganMenuAccess(), new ForgeOrganEvents(), new ForgeOrganItemIdentity());
 
         OrganApiMod.init();
 
@@ -65,6 +65,10 @@ public final class OrganApiForge {
         modBus.addListener(this::onClientSetup);
         modBus.addListener(this::onBuildCreativeTab);
         modBus.addListener(this::onAddPackFinders);
+        if (net.minecraftforge.fml.loading.FMLEnvironment.dist.isClient()) {
+            modBus.addListener(cn.kuzuanpa.organapi.forge.client.ForgeOrganItemModelSetup::onRegisterAdditional);
+            modBus.addListener(cn.kuzuanpa.organapi.forge.client.ForgeOrganItemModelSetup::onBakingCompleted);
+        }
 
         network.register();
         storage.register();

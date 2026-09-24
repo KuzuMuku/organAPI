@@ -52,13 +52,14 @@ public final class OrganApiNeoForge {
 
     public OrganApiNeoForge(IEventBus modBus, ModContainer modContainer) {
         Platform.install(new NeoForgeOrganStorage(), network, new NeoForgeOrganItemCodec(),
-                new NeoForgeOrganMenuAccess(), new NeoForgeOrganEvents());
+                new NeoForgeOrganMenuAccess(), new NeoForgeOrganEvents(), new NeoForgeOrganItemIdentity());
 
         OrganApiMod.init();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, OrganApiConfig.COMMON_SPEC);
 
         NeoForgeOrganAttachment.ATTACHMENT_TYPES.register(modBus);
+        NeoForgeOrganItemIdentity.COMPONENTS.register(modBus);
         OrganItems.ITEMS.register(modBus);
         OrganBlocks.BLOCKS.register(modBus);
         OrganCreativeTabs.TABS.register(modBus);
@@ -69,6 +70,8 @@ public final class OrganApiNeoForge {
         modBus.addListener(this::onAddPackFinders);
         if (FMLEnvironment.dist.isClient()) {
             modBus.addListener(OrganApiNeoForgeClient::onRegisterScreens);
+            modBus.addListener(cn.kuzuanpa.organapi.neoforge.client.NeoForgeOrganItemModelSetup::onRegisterAdditional);
+            modBus.addListener(cn.kuzuanpa.organapi.neoforge.client.NeoForgeOrganItemModelSetup::onBakingCompleted);
         }
 
         NeoForge.EVENT_BUS.addListener(this::onAddReloadListeners);

@@ -30,6 +30,7 @@ public final class Platform {
     private static OrganItemCodec itemCodec;
     private static OrganMenuAccess menus;
     private static OrganEvents events;
+    private static OrganItemIdentity itemIdentity;
 
     private Platform() {
     }
@@ -42,12 +43,14 @@ public final class Platform {
                                OrganNetwork networkImpl,
                                OrganItemCodec itemCodecImpl,
                                OrganMenuAccess menusImpl,
-                               OrganEvents eventsImpl) {
+                               OrganEvents eventsImpl,
+                               OrganItemIdentity itemIdentityImpl) {
         storage = Objects.requireNonNull(storageImpl, "storage");
         network = Objects.requireNonNull(networkImpl, "network");
         itemCodec = Objects.requireNonNull(itemCodecImpl, "itemCodec");
         menus = Objects.requireNonNull(menusImpl, "menus");
         events = Objects.requireNonNull(eventsImpl, "events");
+        itemIdentity = Objects.requireNonNull(itemIdentityImpl, "itemIdentity");
     }
 
     public static OrganStorage storage() {
@@ -68,6 +71,10 @@ public final class Platform {
 
     public static OrganEvents events() {
         return require(events, "OrganEvents");
+    }
+
+    public static OrganItemIdentity itemIdentity() {
+        return require(itemIdentity, "OrganItemIdentity");
     }
 
     private static <T> T require(T value, String name) {

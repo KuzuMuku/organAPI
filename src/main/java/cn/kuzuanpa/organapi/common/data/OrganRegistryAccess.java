@@ -76,7 +76,10 @@ public final class OrganRegistryAccess {
 
     public static Optional<OrganDefinition> getOrgan(ItemStack stack) {
         if (stack.getItem() instanceof OrganItem organItem) {
-            return getOrgan(organItem.getDefinitionId(stack));
+            ResourceLocation definitionId = organItem.getDefinitionId(stack);
+            if (definitionId != null) {
+                return getOrgan(definitionId);
+            }
         }
         //? if forge {
         ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());

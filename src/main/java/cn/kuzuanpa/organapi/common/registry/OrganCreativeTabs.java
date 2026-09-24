@@ -59,6 +59,7 @@ public final class OrganCreativeTabs {
                 OrganItems.SCALPEL,
                 OrganItems.SLAUGHTER_TOOL,
                 OrganItems.DEBUG_HEART_INJECTOR,
+                OrganItems.ORGAN_ITEM,
                 OrganBlocks.SURGERY_ROOM_ITEM,
                 OrganBlocks.SLAUGHTER_ROOM_ITEM,
                 OrganItems.SAMPLE_BRAIN,
@@ -75,6 +76,31 @@ public final class OrganCreativeTabs {
     public static void buildContents(Consumer<ItemStack> accept) {
         for (Supplier<Item> item : tabItems()) {
             accept.accept(new ItemStack(item.get()));
+        }
+        // Data-driven organs: one generic organ_item stack per loaded definition,
+        // stamped with its organId (tacz fillItemCategory pattern). This is what makes
+        // pack-loaded organs (theOrgans content) obtainable at all — they register no
+        // item of their own.
+        for (cn.kuzuanpa.organapi.core.model.OrganDefinition definition
+                : cn.kuzuanpa.organapi.api.OrganApi.getOrgans()) {
+            cn.kuzuanpa.organapi.core.model.OrganId itemId = definition.itemId();
+            net.minecraft.resources.ResourceLocation organItemId =
+                    cn.kuzuanpa.organapi.platform.OrganIds.toResourceLocation(itemId);
+            // Skip organs backed by a real registered item (samples, organeffects/organdefaults),
+            // those are added above / by their own tab.
+            //? if forge {
+            if (net.minecraftforge.registries.ForgeRegistries.ITEMS.containsKey(organItemId)) {
+                continue;
+            }
+            //?} else {
+            /*if (net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(organItemId)) {
+                continue;
+            }
+            *///?}
+            ItemStack stack = new ItemStack(OrganItems.ORGAN_ITEM.get());
+            cn.kuzuanpa.organapi.platform.Platform.itemIdentity()
+                    .setOrganId(stack, cn.kuzuanpa.organapi.platform.OrganIds.toResourceLocation(definition.id()));
+            accept.accept(stack);
         }
     }
 

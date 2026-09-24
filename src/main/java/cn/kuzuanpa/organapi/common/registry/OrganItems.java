@@ -55,6 +55,15 @@ public final class OrganItems {
     public static final Supplier<Item> SCALPEL = ITEMS.register("scalpel", () -> new ScalpelItem(new Item.Properties().stacksTo(1)));
     public static final Supplier<Item> SLAUGHTER_TOOL = ITEMS.register("slaughter_tool", () -> new SlaughterToolItem(new Item.Properties().stacksTo(1)));
     public static final Supplier<Item> DEBUG_HEART_INJECTOR = ITEMS.register("debug_heart_injector", () -> new DebugHeartInjectorItem(new Item.Properties().stacksTo(1)));
+    /**
+     * Single generic organ carrier. {@code definitionId == null} means the organ id
+     * is read per-stack via the {@code OrganItemIdentity} seam, so every
+     * data-defined organ (theOrgans content) rides on this one registered item —
+     * the tacz {@code modern_kinetic_gun} pattern. Concrete organs are data, not
+     * registry entries.
+     */
+    public static final Supplier<Item> ORGAN_ITEM = ITEMS.register("organ_item",
+            () -> new OrganItem(new Item.Properties().stacksTo(1), null));
     public static final Supplier<Item> SAMPLE_BRAIN = ITEMS.register("sample_brain",
             () -> new OrganItem(new Item.Properties().stacksTo(1), ResourceLocation.fromNamespaceAndPath(OrganApiMod.MOD_ID, "sample_brain")));
     public static final Supplier<Item> SAMPLE_HEART = ITEMS.register("sample_heart",
