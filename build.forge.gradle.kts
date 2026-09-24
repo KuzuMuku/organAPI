@@ -13,9 +13,8 @@ repositories {
 }
 
 dependencies {
-    // Pure-Java core module; its classes are folded into the mod jar and the
-    // compat devJar so downstream consumers see one artifact.
-    implementation(project(":organ-core"))
+    // organ-core sources now live under src/main (package cn.kuzuanpa.organapi.core.*),
+    // so no separate module dependency is needed; Gson comes transitively from Minecraft.
 }
 
 legacyForge {
@@ -87,9 +86,6 @@ tasks {
     }
 
     jar {
-        // Fold the pure-Java core classes into the mod jar so it is a single,
-        // self-contained artifact at runtime (Gson is already on the MC classpath).
-        from(project(":organ-core").sourceSets["main"].output)
         finalizedBy("reobfJar")
     }
 }
@@ -102,10 +98,7 @@ tasks.register<Jar>("devJar") {
     archiveVersion = project.property("mod.version") as String
     destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
     from(sourceSets["main"].output)
-    // Bundle the core classes so downstream mods resolve organ-core types
-    // (e.g. cn.kuzuanpa.organapi.core.model.*) from the single dev jar.
-    from(project(":organ-core").sourceSets["main"].output)
-    dependsOn("classes", ":organ-core:classes")
+    dependsOn("classes")
 }
 
 tasks.named("build") {

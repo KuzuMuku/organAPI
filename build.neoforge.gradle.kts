@@ -13,9 +13,8 @@ repositories {
 }
 
 dependencies {
-    // Pure-Java core module; its classes are folded into the mod jar and the
-    // compat devJar so downstream consumers see one artifact.
-    implementation(project(":organ-core"))
+    // organ-core sources now live under src/main (package cn.kuzuanpa.organapi.core.*),
+    // so no separate module dependency is needed; Gson comes transitively from Minecraft.
 }
 
 neoForge {
@@ -84,9 +83,6 @@ tasks {
     }
 
     jar {
-        // Fold the pure-Java core classes into the mod jar so it is a single,
-        // self-contained artifact at runtime (Gson is already on the MC classpath).
-        from(project(":organ-core").sourceSets["main"].output)
         // NeoForge uses official mojmap; there is no reobf step.
     }
 }
@@ -98,8 +94,7 @@ tasks.register<Jar>("devJar") {
     archiveClassifier = "dev"
     archiveVersion = project.property("mod.version") as String
     from(sourceSets["main"].output)
-    from(project(":organ-core").sourceSets["main"].output)
-    dependsOn("classes", ":organ-core:classes")
+    dependsOn("classes")
 }
 
 tasks.named("build") {
