@@ -62,6 +62,7 @@ public final class OrganApiForge {
         OrganBlocks.BLOCKS.register(modBus);
         OrganCreativeTabs.TABS.register(modBus);
         OrganMenus.MENU_TYPES.register(modBus);
+        cn.kuzuanpa.organapi.forge.loot.SetOrganIdFunction.LOOT_FUNCTIONS.register(modBus);
         modBus.addListener(this::onClientSetup);
         modBus.addListener(this::onBuildCreativeTab);
         modBus.addListener(this::onAddPackFinders);

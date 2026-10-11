@@ -27,6 +27,7 @@ import cn.kuzuanpa.organapi.platform.OrganIds;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 //? if forge {
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -82,5 +83,18 @@ public final class OrganItems {
             () -> new BodyExpansionItem(new Item.Properties().stacksTo(16), OrganIds.toResourceLocation(BodyPartIds.RIGHT_LEG), 1));
 
     private OrganItems() {
+    }
+
+    /**
+     * Builds a generic {@link #ORGAN_ITEM} stack stamped with {@code organId} via the
+     * {@code OrganItemIdentity} seam (forge NBT / neoforge DataComponent). This is the
+     * single factory every obtain path shares — creative tab, loot ({@code set_organ_id}
+     * loot function), surgery recipe results, and default-loadout spawning — so data-driven
+     * organs (which register no item of their own) can be produced outside the creative tab.
+     */
+    public static ItemStack createOrganStack(ResourceLocation organId) {
+        ItemStack stack = new ItemStack(ORGAN_ITEM.get());
+        cn.kuzuanpa.organapi.platform.Platform.itemIdentity().setOrganId(stack, organId);
+        return stack;
     }
 }

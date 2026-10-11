@@ -97,10 +97,8 @@ public final class OrganCreativeTabs {
                 continue;
             }
             *///?}
-            ItemStack stack = new ItemStack(OrganItems.ORGAN_ITEM.get());
-            cn.kuzuanpa.organapi.platform.Platform.itemIdentity()
-                    .setOrganId(stack, cn.kuzuanpa.organapi.platform.OrganIds.toResourceLocation(definition.id()));
-            accept.accept(stack);
+            accept.accept(OrganItems.createOrganStack(
+                    cn.kuzuanpa.organapi.platform.OrganIds.toResourceLocation(definition.id())));
         }
     }
 
